@@ -1,11 +1,21 @@
-import logger from './logger'
-
 const event = {
-    pool: {},
+    pool: {
+        hi: [
+            (m) => {
+                console.log(``)
+            },
+            (m) => {
+                console.log(``)
+            },
+            (m) => {
+                console.log(``)
+            },
+        ],
+    },
 }
 
 event.emit = (name, ...payload) => {
-    for (const handle of event.pool[name] || []) {
+    for (const handle of event.pool[name] ?? []) {
         handle(...payload)
     }
 }

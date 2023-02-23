@@ -1,9 +1,4 @@
-const LEVEL = [
-    'debug',
-    'info',
-    'warning',
-    'error',
-]
+const LEVEL = ['debug', 'info', 'warning', 'error']
 
 const logger = {
     log_level: 'debug',
@@ -12,7 +7,7 @@ const logger = {
         if (LEVEL.indexOf(this.log_level.toLowerCase()) <= LEVEL.indexOf('debug')) {
             return console.debug.bind(window.console, '%cDEBUG:', 'color: #6c757d')
         }
-        
+
         return () => undefined
     },
 
@@ -20,7 +15,7 @@ const logger = {
         if (LEVEL.indexOf(this.log_level.toLowerCase()) <= LEVEL.indexOf('info')) {
             return console.info.bind(window.console, '%cINFO:', 'color: #17a2b8')
         }
-        
+
         return () => undefined
     },
 
@@ -28,7 +23,7 @@ const logger = {
         if (LEVEL.indexOf(this.log_level.toLowerCase()) <= LEVEL.indexOf('warning')) {
             return console.warn.bind(window.console, '%cWARNING:', 'color: #ffc107')
         }
-        
+
         return () => undefined
     },
 
@@ -36,7 +31,7 @@ const logger = {
         if (LEVEL.indexOf(this.log_level.toLowerCase()) <= LEVEL.indexOf('error')) {
             return console.error.bind(window.error, '%cERROR:', 'color: #dc3545')
         }
-        
+
         return () => undefined
     },
 }

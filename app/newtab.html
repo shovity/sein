@@ -1,77 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>New Tab</title>
-  <link rel="stylesheet" href="css/newtab.css">
-</head>
-<body>
-  <!-- wallpaper -->
-  <div id="wall"></div>
-  <div id="wall_ghost_left"></div>
-  <div id="wall_ghost_right"></div>
+    <head>
+        <meta charset="UTF-8" />
+        <title>New Tab</title>
+        <link rel="stylesheet" href="css/newtab.css" />
+    </head>
+    <body>
+        <!-- wallpaper -->
+        <div id="wall"></div>
+        <div id="wall_ghost_left"></div>
+        <div id="wall_ghost_right"></div>
 
-  <!-- wave click box -->
-  <div id="wave_click_box"></div>
+        <!-- wave click box -->
+        <div id="wave_click_box"></div>
 
-  <!-- bookmark wave  -->
-  <div id="wave_bookmark" class="active">
-    <div></div>
-    <div></div>
-    <div></div>
-    <div></div>
-    <div></div>
-  </div>
+        <!-- bookmark wave  -->
+        <div id="wave_bookmark" class="active">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
 
-  <!-- bookmark bar -->
-  <div id="r-snack">
-    <div id="bookmark_bar"></div>
-  </div>
+        <!-- bookmark bar -->
+        <div id="r-snack">
+            <div id="bookmark_bar"></div>
+        </div>
 
-  <!-- menu_float -->
-  <div id="menu_float">
-    <div></div>
-    <div id="btn_settings" click-emit="setting_open"><span class="icon icon-settings"></span></div>
-    <div id="btn_switch_workspace" click-emit="noter_switch_workspace"></div>
-    <div id="btn_add_note" click-emit="noter_add" class="main">+</div>
-  </div>
+        <!-- menu_float -->
+        <div id="menu_float">
+            <div></div>
+            <div id="btn_settings" click-emit="setting_open"><span class="icon icon-settings"></span></div>
+            <div id="switch_workspace_btn" click-emit="noter_switch_workspace"></div>
+            <div id="btn_add_note" click-emit="noter_add" class="main">+</div>
+        </div>
 
-  <!-- note_box -->
-  <div id="note_box"></div>
+        <!-- note_box -->
+        <div id="note_box"></div>
 
-  <!-- context menu -->
-  <div id="context_menu"></div>
+        <!-- context menu -->
+        <div id="context_menu"></div>
 
-  <!-- setting -->
-  <div id="setting_box" class="hidden">
-    <div class="setting-header">
-      <div class="setting-close" click-emit="setting_close">&times;</div>
-    </div>
+        <!-- setting -->
+        <div id="setting_box" class="hidden">
+            <div class="setting-header">
+                <div class="setting-close" click-emit="setting_close">&times;</div>
+            </div>
 
-    <div class="setting-heading">Login</div>
-    <p>Building...</p>
+            <div class="setting-heading">Login</div>
+            <p>Building...</p>
 
-    <div class="setting-heading">Backup - Restore</div>
-    <p>Keep your personal data safe</p>
-    <button class="settings-btn" click-emit="setting_backup">Backup data</button>
-    <button class="settings-btn" click-emit="setting_restore">Restore data</button>
+            <div class="setting-heading">Backup - Restore</div>
+            <p>Keep your personal data safe</p>
+            <button class="settings-btn" click-emit="setting_backup">Backup data</button>
+            <button class="settings-btn" click-emit="setting_restore">Restore data</button>
 
-    <div class="setting-heading">Wallpaper</div>
-    <p>Choice your wallpapers, you can edit 5 photos in the end of list</p>
-    <div id="settings_wallpapers"></div>
-    <button class="settings-btn" click-emit="setting_wallpaper_reset">Reset wallpaper</button>
+            <div class="setting-heading">Wallpaper</div>
+            <p>Choice your wallpapers, you can edit 5 photos in the end of list</p>
+            <div id="settings_wallpapers"></div>
+            <button class="settings-btn" click-emit="setting_wallpaper_reset">Reset wallpaper</button>
 
-    <div class="setting-heading">EQcode table</div>
-    <p>Snippets in note</p>
-    <textarea id="setting_code_table_input" disabled></textarea>
+            <div class="setting-heading">EQcode table</div>
+            <p>Snippets in note</p>
+            <textarea id="setting_code_table_input" disabled></textarea>
 
-    <div class="setting-heading">Config</div>
-    <p>Free config (json)</p>
-    <textarea id="setting_config_input"></textarea>
-    <button class="settings-btn" click-emit="setting_config_save">Save config</button>
+            <div class="setting-heading">Config</div>
+            <p>Free config (json)</p>
+            <textarea id="setting_config_input"></textarea>
+            <button class="settings-btn" click-emit="setting_config_save">Save config</button>
+        </div>
 
-  </div>
-
-  <script src="js/newtab.bundle.js"></script>
-</body>
+        <script src="js/newtab.bundle.js"></script>
+    </body>
 </html>

@@ -1,31 +1,47 @@
+import logger from './logger'
+
 const util = {}
 
-util.createTimeoutCall = (timeout = 200, fn, ...args) => {
-    const instance  = {}
-    instance.timeout = timeout
-    instance.fn = fn
-    instance.args = args
-    instance.call_timeout = null
-    
+util.throttle = (wait = 200, trailling = true) => {
+    const instance = {
+        lock: false,
+        handle: null,
+    }
 
-    instance.execute = (fn) => {
-        if (fn) {
-            instance.fn = fn
+    instance.execute = (handle, ...args) => {
+        instance.handle = handle
+
+        if (instance.lock) {
+            return
         }
 
-        if (!instance.fn) {
-            return logger.error('util: createTimeoutCall: missing fn')
-        }
+        instance.handle(...args)
+        instance.handle = null
+        instance.lock = true
 
-        clearTimeout(instance.call_timeout)
-        instance.call_timeout = setTimeout(() => {
-            fn(...instance.args)
-        }, instance.timeout)
+        setTimeout(() => {
+            instance.lock = false
+
+            if (trailling && instance.handle) {
+                instance.execute(instance.handle, ...args)
+            }
+        }, wait)
+    }
+
+    return instance
+}
+
+util.debounce = (wait = 200) => {
+    const instance = {
+        timeout: null,
+    }
+
+    instance.execute = (handle, ...args) => {
+        clearTimeout(instance.timeout)
+        instance.timeout = setTimeout(handle, wait, ...args)
     }
 
     return instance
 }
 
 export default util
-
-

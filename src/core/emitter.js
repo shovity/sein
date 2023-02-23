@@ -29,11 +29,17 @@ emitter.gen = (name, handle) => {
 
 // Define emitter
 
+const y = 1
+
 emitter.gen('click', () => {
+    const x = 1
+
     function handleClickR(target, domEvent, up = 0) {
         if (up > 5 || !target) {
             return
         }
+
+        console.log(x, y)
 
         const clickEmit = target.getAttribute('click-emit')
 

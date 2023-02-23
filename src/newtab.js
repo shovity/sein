@@ -1,18 +1,12 @@
 import './prototype'
 import './wallpaper'
-
-import event from './core/event'
 import emitter from './core/emitter'
 import storage from './core/storage'
 import logger from './core/logger'
 import noter from './noter'
 import bookmark from './bookmark'
-import waver from './waver'
-import setting from './setting'
-
-window.config = storage.config || {
-    log_level: 'debug',
-}
+import './waver'
+import './setting'
 
 window.holder = {
     w_w: window.document.documentElement.clientWidth,
@@ -31,7 +25,13 @@ window.addEventListener('resize', () => {
     holder.w_h = window.document.documentElement.clientHeight
 })
 
+noter.boot()
+bookmark.boot()
 emitter.click()
 
-logger.log_level = config.log_level
-window.btn_switch_workspace.innerHTML = storage.workspace || 0
+storage.config = storage.config || {
+    log_level: 'debug',
+}
+
+logger.log_level = storage.config.log_level
+window.switch_workspace_btn.innerHTML = storage.workspace || 0

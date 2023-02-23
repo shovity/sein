@@ -8,7 +8,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "build": "webpack --mode=production; ./bin/index-wallpapers",
+    "build": "webpack --mode=production",
     "watch": "webpack --watch --mode=development",
     "format": "prettier --write .",
     "lint": "eslint . --fix"

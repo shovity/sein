@@ -2,7 +2,8 @@ import storage from './core/storage'
 import event from './core/event'
 import noter from './noter'
 
-const PLACEHOLDER_IMG_SRC = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQYV2M4c+bMfwAIMANkq3cY2wAAAABJRU5ErkJggg=='
+const PLACEHOLDER_IMG_SRC =
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQYV2M4c+bMfwAIMANkq3cY2wAAAABJRU5ErkJggg'
 const EXTEND_WALLPAPER_SIZE = 5
 
 const setting = {
@@ -11,53 +12,56 @@ const setting = {
 }
 
 setting.render = () => {
-    // render wallpaper
+    // Render wallpaper
     const walW = window.settings_wallpapers.clientWidth / 6 - 10
-    const walH = walW * holder.w_h / holder.w_w
+    const walH = (walW * holder.w_h) / holder.w_w
 
     if (storage.wallpapers.length === 3) {
-        
-        // add placeholder for edit
+        // Add placeholder for edit
         storage.wallpapers = [
             ...storage.wallpapers,
             ...new Array(EXTEND_WALLPAPER_SIZE).fill({ url: PLACEHOLDER_IMG_SRC }),
         ]
     }
 
-    window.settings_wallpapers.innerHTML = storage.wallpapers.map((wall, index) => {
-        let className = 'settings-wall-pre'
-        if (wall.active) {
-            className += ' active'
-        }
+    window.settings_wallpapers.innerHTML = storage.wallpapers
+        .map((wall, index) => {
+            let className = 'settings-wall-pre'
+            if (wall.active) {
+                className += ' active'
+            }
 
-        let inner = ''
+            let inner = ''
 
-        if (index >= 3) {
-            inner += `<span click-emit="setting_wallpaper_edit:${index}">EDIT</span>`
-        }
+            if (index >= 3) {
+                inner += `<span click-emit="setting_wallpaper_edit:${index}">EDIT</span>`
+            }
 
-        return `
+            return `
         <div
             class="${className}"
             style="width: ${walW}px; height: ${walH}px; background-image: url(${wall.url})"
             click-emit="setting_wallpaper_toggle:${index}"
         >${inner}</div>
         `
-    }).join('')
+        })
+        .join('')
 
-    // render config
-    window.setting_config_input.value = JSON.stringify(config)
+    // Render config
+    window.setting_config_input.value = JSON.stringify(storage.config)
         .replace(/,/g, ',\n')
         .replace('{', '{\n')
         .replace('}', '\n}')
 
-    // render code table
-    window.setting_code_table_input.value = holder.code_tables.map(codeTable => {
-        return `${codeTable.code.slice(0, -2)} -> ${codeTable.value}`
-    }).join('\n')
+    // Render code table
+    window.setting_code_table_input.value = holder.code_tables
+        .map((codeTable) => {
+            return `${codeTable.code.slice(0, -2)} -> ${codeTable.value}`
+        })
+        .join('\n')
 }
 
-setting.toggle = state => {
+setting.toggle = (state) => {
     if (state === undefined) {
         state = !setting.isOpen
     }
@@ -85,13 +89,13 @@ event.on('setting_backup', () => {
 
     const data = {}
     data.notes = noter.notes
-    data.storage = JSON.parse(JSON.stringify(localStorage))
+    data.storage = JSON.parse(JSON.stringify(window.localStorage))
 
     const jsonStringData = JSON.stringify(data)
 
     const blob = new Blob([jsonStringData], { type: 'text/plain' })
 
-    // try collect buffer memory
+    // Try collect buffer memory
     if (setting.blob_buffer_url !== null) {
         window.URL.revokeObjectURL(setting.blob_buffer_url)
     }
@@ -108,40 +112,44 @@ event.on('setting_restore', () => {
     const input = document.createElement('input')
     input.type = 'file'
 
-    input.addEventListener('change', () => {
-        const file = input.files[0]
-        const reader = new FileReader()
+    input.addEventListener(
+        'change',
+        () => {
+            const file = input.files[0]
+            const reader = new FileReader()
 
-        reader.addEventListener('load', () => {
-            const backupJsonStringData = reader.result
-            const backupData = JSON.parse(backupJsonStringData)
-            const { notes, storage } = backupData
+            reader.addEventListener('load', () => {
+                const backupJsonStringData = reader.result
+                const backupData = JSON.parse(backupJsonStringData)
+                const { notes, storage } = backupData
 
-            port.postMessage({ request: 'post_notes', data: notes })
+                noter.notes = notes
+                noter.save()
 
-            Object.keys(storage).forEach(k => {
-                localStorage[k] = storage[k]
+                Object.keys(storage).forEach((k) => {
+                    window.localStorage[k] = storage[k]
+                })
+
+                window.alert('Restore completed')
+                window.location.reload()
             })
 
-            alert('Restore complated')
-            location.reload()
-        })
-
-        reader.readAsText(file)
-    }, { once: true })
+            reader.readAsText(file)
+        },
+        { once: true },
+    )
 
     input.click()
 })
 
 event.on('setting_config_save', () => {
     try {
-        const config = JSON.parse(setting_config_input.value)
+        const config = JSON.parse(window.setting_config_input.value)
         storage.config = config
-        window.config = config
     } catch (error) {
-        return alert('Parse config error')
+        return window.alert('Parse config error')
     }
-    alert('Save config success')
+    window.alert('Save config success')
 })
 
 event.on('setting_wallpaper_toggle', (index, { target }) => {
@@ -157,7 +165,7 @@ event.on('setting_wallpaper_toggle', (index, { target }) => {
     }
 
     wallpapers[index].active = !isActive
-    
+
     storage.wallpapers = wallpapers
 })
 
@@ -166,36 +174,39 @@ event.on('setting_wallpaper_edit', (index, { target }) => {
 
     const input = document.createElement('input')
     input.type = 'file'
-    
-    input.addEventListener('change', () => {
-        const file = input.files[0]
-        const reader = new FileReader()
 
-        // check file size
-        if (file.size > 1048576) {
-            return alert('Image must be less than 1 megabytes')
-        }
+    input.addEventListener(
+        'change',
+        () => {
+            const file = input.files[0]
+            const reader = new FileReader()
 
-        reader.addEventListener("load", () => {
-            const buffys = storage.wallpapers
+            // Check file size
+            if (file.size > 1048576) {
+                return window.alert('Image must be less than 1 megabytes')
+            }
 
-            buffys[index].url = reader.result
-            storage.wallpapers = buffys
-            
-            const item = target.parentElement
-            item.style.backgroundImage = `url(${reader.result})`
-        })
+            reader.addEventListener('load', () => {
+                const buffys = storage.wallpapers
 
-        reader.readAsDataURL(file)
-    }, { once: true })
+                buffys[index].url = reader.result
+                storage.wallpapers = buffys
+
+                const item = target.parentElement
+                item.style.backgroundImage = `url(${reader.result})`
+            })
+
+            reader.readAsDataURL(file)
+        },
+        { once: true },
+    )
 
     input.click()
 })
 
 event.on('setting_wallpaper_reset', () => {
     storage.wallpapers = null
-    location.reload()
+    window.location.reload()
 })
-
 
 export default setting

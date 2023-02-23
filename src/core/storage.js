@@ -8,8 +8,8 @@ handler.get = (target, key) => {
         return target
     }
 
-    const raw = localStorage[key]
-    
+    const raw = window.localStorage[key]
+
     try {
         return raw && JSON.parse(raw)
     } catch (error) {
@@ -17,8 +17,8 @@ handler.get = (target, key) => {
     }
 }
 
-handler.set = (target, key, value) => {    
-    localStorage[key] = JSON.stringify(value)
+handler.set = (target, key, value) => {
+    window.localStorage[key] = JSON.stringify(value)
     target[key] = value
     return true
 }

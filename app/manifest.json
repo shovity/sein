@@ -1,20 +1,16 @@
 {
   "name": "SEIN",
   "description": "SEIN is your side-kick",
-  "version": "1.0",
-
- "chrome_url_overrides" : {
+  "version": "1.0.0",
+  "icons": {
+    "16": "img/16.png",
+    "48": "img/48.png",
+    "128": "img/128.png"
+  },
+  "chrome_url_overrides": {
     "newtab": "newtab.html"
   },
-
-  "permissions": [
-    "bookmarks",
-    "topSites",
-    "tabs",
-    "storage",
-    "favicon"
-  ],
-
+  "permissions": ["bookmarks", "topSites", "tabs", "storage", "favicon"],
   "web_accessible_resources": [
     {
       "resources": ["_favicon/*"],
@@ -22,6 +18,5 @@
       "extension_ids": ["*"]
     }
   ],
-
   "manifest_version": 3
 }

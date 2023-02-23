@@ -1,9 +1,9 @@
-const fs = require('fs')
 const path = require('path')
 
 const config = {
     entry: {
-        'newtab': './src/newtab.js',
+        newtab: './src/newtab.js',
+        // backgound: './src/background.js',
     },
 
     output: {
@@ -13,7 +13,6 @@ const config = {
 }
 
 module.exports = (env, argv) => {
-
     if (argv.mode === 'development') {
         config.devtool = 'inline-source-map'
     }

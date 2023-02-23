@@ -1,6 +1,5 @@
 module.exports = {
     env: {
-        commonjs: true,
         es2021: true,
         node: true,
     },
@@ -8,16 +7,25 @@ module.exports = {
     overrides: [],
     parserOptions: {
         ecmaVersion: 'latest',
+        sourceType: 'module',
     },
-    // rules: {
-    //     'no-unused-vars': [
-    //         'error',
-    //         {
-    //             argsIgnorePattern: '^_|^next$',
-    //         },
-    //     ],
-    // },
-    // globals: {
-    //     check: true,
-    // },
+    rules: {
+        'no-unused-vars': [
+            'error',
+            {
+                argsIgnorePattern: '^_|^next$',
+            },
+        ],
+    },
+    globals: {
+        holder: true,
+        chrome: true,
+        window: true,
+        document: true,
+        HTMLElement: true,
+        HTMLCollection: true,
+        NodeList: true,
+        Blob: true,
+        FileReader: true,
+    },
 }
