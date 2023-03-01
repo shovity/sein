@@ -1,17 +1,5 @@
 const event = {
-    pool: {
-        hi: [
-            (m) => {
-                console.log(``)
-            },
-            (m) => {
-                console.log(``)
-            },
-            (m) => {
-                console.log(``)
-            },
-        ],
-    },
+    pool: {},
 }
 
 event.emit = (name, ...payload) => {

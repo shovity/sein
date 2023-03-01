@@ -2,8 +2,7 @@ const path = require('path')
 
 const config = {
     entry: {
-        newtab: './src/newtab.js',
-        // backgound: './src/background.js',
+        index: './src/index.js',
     },
 
     output: {

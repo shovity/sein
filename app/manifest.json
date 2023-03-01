@@ -8,7 +8,7 @@
     "128": "img/128.png"
   },
   "chrome_url_overrides": {
-    "newtab": "newtab.html"
+    "newtab": "index.html"
   },
   "permissions": ["bookmarks", "topSites", "storage", "favicon"],
   "web_accessible_resources": [

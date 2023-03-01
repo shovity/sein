@@ -278,9 +278,15 @@ body {
   transform: translateX(-200px);
 }
 
-/*Noter*/
+/* Noter */
 
-#note_box .note {
+.note-box {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.note {
   color: #000;
   position: fixed;
   top: 0;
@@ -289,17 +295,12 @@ body {
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.26), 0 4px 18px 0 rgba(0, 0, 0, 0.18);
 }
 
-#note_box .note:hover {
+.note:hover,
+.note-ontop {
   z-index: 10;
 }
 
-#note_box .box {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-#note_box textarea {
+.note-box textarea {
   font-family: roboto, arial;
   padding: 10px;
   min-width: 300px;
@@ -309,19 +310,19 @@ body {
   margin-bottom: -3px;
 }
 
-#note_box textarea::-webkit-scrollbar {
+.note-box textarea::-webkit-scrollbar {
   width: 10px;
 }
 
-#note_box textarea::-webkit-scrollbar-track {
+.note-box textarea::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.1);
 }
 
-#note_box textarea::-webkit-scrollbar-thumb {
+.note-box textarea::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.3);
 }
 
-.note .note-controls {
+.note-controls {
   position: relative;
   background: rgba(0, 0, 0, 0.2);
   width: 100%;
@@ -334,7 +335,7 @@ body {
   opacity: 1;
 }
 
-#note_box .note-remove {
+.note-remove {
   cursor: pointer;
   position: absolute;
   top: 2px;
@@ -348,9 +349,10 @@ body {
   color: #fff;
   font-size: 18px;
   line-height: 16px;
+  user-select: none;
 }
 
-.rain-bow {
+.note-rainbow {
   position: absolute;
   width: 12px;
   height: 50%;
@@ -364,62 +366,62 @@ body {
   align-items: flex-end;
 }
 
-.rain-bow > div {
+.note-rainbow > div {
   margin: 1px 0;
   height: 33.33%;
   width: 3px;
   cursor: pointer;
 }
 
-.rain-bow:hover > div {
+.note-rainbow:hover > div {
   width: 12px;
 }
 
-.note-controls:active + .rain-bow > div {
+.note-controls:active + .note-rainbow > div {
   transform: translate(-15px, -15px) rotate(-180deg);
   width: 7px;
 }
 
-.rain-bow > div:nth-child(1) {
+.note-rainbow > div:nth-child(1) {
   background: #007bff;
   transition: all 0.3s ease-in-out;
 }
 
-.rain-bow > div:nth-child(2) {
+.note-rainbow > div:nth-child(2) {
   background: #28a745;
   transition: all 0.2s ease-in-out;
 }
 
-.rain-bow > div:nth-child(3) {
+.note-rainbow > div:nth-child(3) {
   background: #dc3545;
   transition: all 0.1s ease-in-out;
 }
 
-#note_box .note[note-status='danger'] {
+.note[note-status='danger'] {
   background: rgba(220, 53, 69, 0.7);
 }
 
-#note_box .note[note-status='danger'] textarea {
+.note[note-status='danger'] textarea {
   color: #fff0f0;
 }
 
-#note_box .note[note-status='primary'] {
+.note[note-status='primary'] {
   background: rgba(0, 123, 255, 0.7);
 }
 
-#note_box .note[note-status='primary'] textarea {
+.note[note-status='primary'] textarea {
   color: #f0f0ff;
 }
 
-#note_box .note[note-status='success'] {
+.note[note-status='success'] {
   background: rgba(40, 167, 69, 0.7);
 }
 
-#note_box .note[note-status='success'] textarea {
+.note[note-status='success'] textarea {
   color: #f0fff0;
 }
 
-/*click wave*/
+/* Click wave */
 
 #wave_click_box {
   pointer-events: none;

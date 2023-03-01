@@ -38,12 +38,12 @@ setting.render = () => {
             }
 
             return `
-        <div
-            class="${className}"
-            style="width: ${walW}px; height: ${walH}px; background-image: url(${wall.url})"
-            click-emit="setting_wallpaper_toggle:${index}"
-        >${inner}</div>
-        `
+            <div
+                class="${className}"
+                style="width: ${walW}px; height: ${walH}px; background-image: url(${wall.url})"
+                click-emit="setting_wallpaper_toggle:${index}"
+            >${inner}</div>
+            `
         })
         .join('')
 

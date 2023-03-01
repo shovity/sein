@@ -1,8 +1,6 @@
 import logger from './logger'
 import event from './event'
 
-const WATCH_EVENT = 'change'
-
 const store = {
     state: {},
     subs: [],
@@ -27,7 +25,7 @@ handler.set = (target, key, value) => {
             option = value
             value = value.value
         } else {
-            return logger.error('store: complex value invalid, { value, ta (target attribute), ... }')
+            return logger.error('store: Complex value invalid, { value, ta (target attribute), ... }')
         }
     }
 

@@ -13,7 +13,7 @@ handler.get = (target, key) => {
     try {
         return raw && JSON.parse(raw)
     } catch (error) {
-        return logger.error('storage: parse json fail, key: ', key)
+        return logger.error('storage: Parse json fail, key: ', key)
     }
 }
 

@@ -5,7 +5,7 @@ const logger = {
 
     get debug() {
         if (LEVEL.indexOf(this.log_level.toLowerCase()) <= LEVEL.indexOf('debug')) {
-            return console.debug.bind(window.console, '%cDEBUG:', 'color: #6c757d')
+            return console.debug.bind(window.console, '%cDEBUG  :', 'color: #6c757d')
         }
 
         return () => undefined
@@ -13,7 +13,7 @@ const logger = {
 
     get info() {
         if (LEVEL.indexOf(this.log_level.toLowerCase()) <= LEVEL.indexOf('info')) {
-            return console.info.bind(window.console, '%cINFO:', 'color: #17a2b8')
+            return console.info.bind(window.console, '%cINFO   :', 'color: #17a2b8')
         }
 
         return () => undefined
@@ -29,7 +29,7 @@ const logger = {
 
     get error() {
         if (LEVEL.indexOf(this.log_level.toLowerCase()) <= LEVEL.indexOf('error')) {
-            return console.error.bind(window.error, '%cERROR:', 'color: #dc3545')
+            return console.error.bind(window.error, '%cERROR  :', 'color: #dc3545')
         }
 
         return () => undefined

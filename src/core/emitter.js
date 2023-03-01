@@ -1,10 +1,9 @@
 import logger from './logger'
 import event from './event'
 
-const emitter = {}
-const mounted = {}
-
-emitter.mounted = mounted
+const emitter = {
+    mounted: {},
+}
 
 /**
  * Emitter generator
@@ -13,33 +12,30 @@ emitter.mounted = mounted
  */
 emitter.gen = (name, handle) => {
     if (emitter[name] || !/^[a-zA-Z][a-zA-Z0-9_]{0,63}$/.test(name)) {
-        return logger.error(`emitter: name "${name}" existed or invalid`)
+        return logger.error(`emitter: Name "${name}" existed or invalid`)
     }
 
     emitter[name] = () => {
-        if (mounted[name]) {
-            return logger.error(`emitter: duplicate mount emitter ${name}`)
+        if (emitter.mounted[name]) {
+            return logger.error(`emitter: Duplicate mount emitter ${name}`)
         }
 
         handle()
 
-        mounted[name] = true
+        emitter.mounted[name] = true
     }
 }
 
-// Define emitter
-
-const y = 1
+/**
+ * Define emitter
+ * ==============
+ */
 
 emitter.gen('click', () => {
-    const x = 1
-
     function handleClickR(target, domEvent, up = 0) {
         if (up > 5 || !target) {
             return
         }
-
-        console.log(x, y)
 
         const clickEmit = target.getAttribute('click-emit')
 
@@ -74,7 +70,7 @@ emitter.gen('click', () => {
         handleClickR(domEvent.target, domEvent)
     })
 
-    logger.info('emiter: click emiter mounted')
+    logger.info('emiter: Click emiter mounted')
 })
 
 export default emitter

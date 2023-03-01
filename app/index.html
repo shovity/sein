@@ -3,18 +3,18 @@
     <head>
         <meta charset="UTF-8" />
         <title>New Tab</title>
-        <link rel="stylesheet" href="css/newtab.css" />
+        <link rel="stylesheet" href="css/index.css" />
     </head>
     <body>
-        <!-- wallpaper -->
+        <!-- Wallpaper -->
         <div id="wall"></div>
         <div id="wall_ghost_left"></div>
         <div id="wall_ghost_right"></div>
 
-        <!-- wave click box -->
+        <!-- Wave -->
         <div id="wave_click_box"></div>
 
-        <!-- bookmark wave  -->
+        <!-- Bookmark wave  -->
         <div id="wave_bookmark" class="active">
             <div></div>
             <div></div>
@@ -23,12 +23,12 @@
             <div></div>
         </div>
 
-        <!-- bookmark bar -->
+        <!-- Bookmark bar -->
         <div id="r-snack">
             <div id="bookmark_bar"></div>
         </div>
 
-        <!-- menu_float -->
+        <!-- Menu_float -->
         <div id="menu_float">
             <div></div>
             <div id="btn_settings" click-emit="setting_open"><span class="icon icon-settings"></span></div>
@@ -36,20 +36,20 @@
             <div id="btn_add_note" click-emit="noter_add" class="main">+</div>
         </div>
 
-        <!-- note_box -->
+        <!-- Note_box -->
         <div id="note_box"></div>
 
-        <!-- context menu -->
+        <!-- Context menu -->
         <div id="context_menu"></div>
 
-        <!-- setting -->
+        <!-- Setting -->
         <div id="setting_box" class="hidden">
             <div class="setting-header">
                 <div class="setting-close" click-emit="setting_close">&times;</div>
             </div>
 
-            <div class="setting-heading">Login</div>
-            <p>Building...</p>
+            <!-- <div class="setting-heading">Login</div>
+            <p>Building...</p> -->
 
             <div class="setting-heading">Backup - Restore</div>
             <p>Keep your personal data safe</p>
@@ -71,6 +71,6 @@
             <button class="settings-btn" click-emit="setting_config_save">Save config</button>
         </div>
 
-        <script src="js/newtab.bundle.js"></script>
+        <script src="js/index.bundle.js"></script>
     </body>
 </html>

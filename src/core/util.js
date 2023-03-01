@@ -1,5 +1,3 @@
-import logger from './logger'
-
 const util = {}
 
 util.throttle = (wait = 200, trailling = true) => {
@@ -15,9 +13,9 @@ util.throttle = (wait = 200, trailling = true) => {
             return
         }
 
-        instance.handle(...args)
-        instance.handle = null
         instance.lock = true
+        instance.handle = null
+        instance.handle(...args)
 
         setTimeout(() => {
             instance.lock = false
@@ -39,6 +37,30 @@ util.debounce = (wait = 200) => {
     instance.execute = (handle, ...args) => {
         clearTimeout(instance.timeout)
         instance.timeout = setTimeout(handle, wait, ...args)
+    }
+
+    return instance
+}
+
+util.raf = () => {
+    const instance = {
+        lock: false,
+        handle: null,
+    }
+
+    instance.execute = (handle, ...args) => {
+        instance.handle = handle
+
+        if (instance.lock) {
+            return
+        }
+
+        instance.lock = true
+
+        window.requestAnimationFrame(() => {
+            instance.lock = false
+            instance.handle(...args)
+        })
     }
 
     return instance
