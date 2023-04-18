@@ -280,12 +280,6 @@ body {
 
 /* Noter */
 
-.note-box {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
 .note {
   color: #000;
   position: fixed;
@@ -300,7 +294,7 @@ body {
   z-index: 10;
 }
 
-.note-box textarea {
+.note > textarea {
   font-family: roboto, arial;
   padding: 10px;
   min-width: 300px;
@@ -310,15 +304,15 @@ body {
   margin-bottom: -3px;
 }
 
-.note-box textarea::-webkit-scrollbar {
+.note > textarea::-webkit-scrollbar {
   width: 10px;
 }
 
-.note-box textarea::-webkit-scrollbar-track {
+.note > textarea::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.1);
 }
 
-.note-box textarea::-webkit-scrollbar-thumb {
+.note > textarea::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.3);
 }
 
@@ -401,7 +395,7 @@ body {
   background: rgba(220, 53, 69, 0.7);
 }
 
-.note[note-status='danger'] textarea {
+.note[note-status='danger'] > textarea {
   color: #fff0f0;
 }
 
@@ -409,7 +403,7 @@ body {
   background: rgba(0, 123, 255, 0.7);
 }
 
-.note[note-status='primary'] textarea {
+.note[note-status='primary'] > textarea {
   color: #f0f0ff;
 }
 
@@ -417,8 +411,12 @@ body {
   background: rgba(40, 167, 69, 0.7);
 }
 
-.note[note-status='success'] textarea {
+.note[note-status='success'] > textarea {
   color: #f0fff0;
+}
+
+.note-ffm > textarea {
+  font-family: monospace;
 }
 
 /* Click wave */

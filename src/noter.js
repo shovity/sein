@@ -103,25 +103,24 @@ noter.createElement = (note) => {
     dom.setAttribute('note-status', status || 'default')
 
     dom.innerHTML = `
-    <div class="note-box">
-        <div class="note-controls" note-move-id="${id}">
-            <div class="note-remove" click-emit="note_remove:${id}">&times;</div>
-        </div>
-        <div class="note-rainbow">
-            <div click-emit="note_mark:${id},primary"></div>
-            <div click-emit="note_mark:${id},success"></div>
-            <div click-emit="note_mark:${id},danger"></div>
-        </div>
-        <textarea
-            autocomplete="off"
-            autocorrect="off"
-            autocapitalize="off"
-            spellcheck="false"
-            note-editor-id="${id}"
-            style="width:${w}px;height:${h - 20}px;"
-        >${msg}</textarea>
-    </div>`
+    <div class="note-controls" note-move-id="${id}">
+        <div class="note-remove" click-emit="note_remove:${id}">&times;</div>
+    </div>
+    <div class="note-rainbow">
+        <div click-emit="note_mark:${id},primary"></div>
+        <div click-emit="note_mark:${id},success"></div>
+        <div click-emit="note_mark:${id},danger"></div>
+    </div>
+    <textarea
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        spellcheck="false"
+        note-editor-id="${id}"
+        style="width:${w}px;height:${h - 20}px;"
+    >${msg}</textarea>`
 
+    noter.handleHashtag(dom)
     return dom
 }
 
@@ -156,8 +155,8 @@ noter.render = (clear = true, workspace = +storage.workspace || 0) => {
     logger.debug('noter: Render note', noter.notes)
 }
 
-noter.checkAndReplaceCode = (target) => {
-    const string = target.value
+noter.checkAndReplaceCode = (textarea) => {
+    const string = textarea.value
 
     holder.code_tables.forEach((code) => {
         const cregex = new RegExp(code.code)
@@ -166,8 +165,8 @@ noter.checkAndReplaceCode = (target) => {
         if (result) {
             const datas = result.slice(1)
 
-            const oldSelectionStart = target.selectionStart
-            const oldValue = target.value
+            const oldSelectionStart = textarea.selectionStart
+            const oldValue = textarea.value
 
             let codeValue = code.value
 
@@ -175,12 +174,29 @@ noter.checkAndReplaceCode = (target) => {
                 codeValue = codeValue.replace('$', data)
             })
 
-            target.value = string.replace(cregex, codeValue)
+            textarea.value = string.replace(cregex, codeValue)
 
-            const newSelectionStart = oldSelectionStart + target.value.length - oldValue.length
-            target.setSelectionRange(newSelectionStart, newSelectionStart)
+            const newSelectionStart = oldSelectionStart + textarea.value.length - oldValue.length
+            textarea.setSelectionRange(newSelectionStart, newSelectionStart)
         }
     })
+}
+
+noter.handleHashtag = (dom) => {
+    const textarea = dom.querySelector('textarea')
+    const line = textarea.value.slice(0, textarea.value.indexOf('\n'))
+    let className = 'note'
+
+    if (line.startsWith('# ')) {
+        const hashtags = line.slice(2).split(' ').filter((t) => t)
+        console.log(hashtags)
+
+        if (hashtags.includes('monospace')) {
+            className += ' note-ffm'
+        }
+    }
+
+    dom.className = className
 }
 
 noter.remove = (id) => {
@@ -222,6 +238,9 @@ noter.handleOnChange = ({ target, key }) => {
         if (key === '=') {
             noter.checkAndReplaceCode(target)
         }
+
+        // Handle note hashtag
+        noter.handleHashtag(target.parentElement)
 
         // Check max note character
         if (target.value.length > noter.MAX_NOTE_CHARACTER) {
