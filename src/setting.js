@@ -48,17 +48,7 @@ setting.render = () => {
         .join('')
 
     // Render config
-    window.setting_config_input.value = JSON.stringify(storage.config)
-        .replace(/,/g, ',\n')
-        .replace('{', '{\n')
-        .replace('}', '\n}')
-
-    // Render code table
-    window.setting_code_table_input.value = holder.code_tables
-        .map((codeTable) => {
-            return `${codeTable.code.slice(0, -2)} -> ${codeTable.value}`
-        })
-        .join('\n')
+    window.setting_config_input.value = JSON.stringify(storage.config, null, 2)
 }
 
 setting.toggle = (state) => {

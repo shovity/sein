@@ -11,13 +11,6 @@ import './setting'
 window.holder = {
     w_w: window.document.documentElement.clientWidth,
     w_h: window.document.documentElement.clientHeight,
-
-    code_tables: [
-        { code: 'date==', value: new Date().toLocaleDateString() },
-        { code: 'time==', value: new Date().toLocaleTimeString() },
-        { code: 'now==', value: new Date().toLocaleString() },
-        // { code: 'name_(.+?)', value: 'Hi sir, $ <3' },
-    ],
 }
 
 window.addEventListener('resize', () => {

@@ -102,38 +102,11 @@ noter.render = (clear = true, workspace = +storage.workspace || 0) => {
     logger.debug('noter: Render note', noter.notes)
 }
 
-noter.checkAndReplaceCode = (editor) => {
-    const string = editor.innerHTML
-
-    holder.code_tables.forEach((code) => {
-        const cregex = new RegExp(code.code)
-
-        const result = string.match(cregex)
-        if (result) {
-            const datas = result.slice(1)
-
-            const oldSelectionStart = textarea.selectionStart
-            const oldValue = editor.innerHTML
-
-            let codeValue = code.value
-
-            datas.forEach((data) => {
-                codeValue = codeValue.replace('$', data)
-            })
-
-            editor.innerHTML = string.replace(cregex, codeValue)
-
-            const newSelectionStart = oldSelectionStart + editor.innerHTML.length - oldValue.length
-            textarea.setSelectionRange(newSelectionStart, newSelectionStart)
-        }
-    })
-}
-
 noter.handleHashtag = (dom) => {
     const editor = dom.querySelector('.note-editor')
     const head = editor.innerHTML.slice(0, 256)
 
-    const hashtags = head.match(/#[a-z0-9_]{1,12}/ig) || []
+    const hashtags = head.match(/#[a-z0-9_]{1,12}/gi) || []
     const classes = ['note']
 
     if (hashtags.includes('#mono')) {
@@ -176,11 +149,6 @@ noter.handleOnChange = ({ target, key }) => {
         // Check changed
         if (noter.notes[index].msg === target.innerHTML) {
             return
-        }
-
-        // Handle note code
-        if (key === '=') {
-            noter.checkAndReplaceCode(target)
         }
 
         // Handle note hashtag
