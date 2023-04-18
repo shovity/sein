@@ -4,43 +4,19 @@ import event from './core/event'
 import util from './core/util'
 
 const noter = {
-    MAX_NOTE_NUMBER: 300,
-    MAX_NOTE_CHARACTER: 3000,
     notes: [],
 
     call: {
-        save: util.debounce(2000),
         move: util.raf(),
     },
+    version: null,
 }
 
 noter.fetch = () => {
     chrome.storage.local.get(['notes', 'version']).then((local) => {
         noter.notes = local.notes || []
+        noter.version = local.version
         noter.render()
-
-        chrome.storage.sync.get().then((sync) => {
-            if (sync.version > local.version) {
-                noter.notes = []
-
-                for (const [key, value] of Object.entries(sync)) {
-                    if (key.startsWith('note:')) {
-                        noter.notes.push(value)
-                    }
-                }
-
-                noter.render()
-
-                chrome.storage.local.set({
-                    notes: noter.notes,
-                    version: sync.version,
-                })
-
-                logger.debug('noter: Render sync data')
-            } else if (sync.version < local.version) {
-                noter.sync(local.version)
-            }
-        })
     })
 }
 
@@ -52,31 +28,8 @@ noter.save = () => {
         version,
     })
 
-    noter.sync(version)
+    noter.version = version
     logger.debug('noter: Noter save:', noter.notes)
-}
-
-noter.sync = (version) => {
-    const update = { version }
-    const removes = []
-
-    chrome.storage.sync.get().then((sync) => {
-        for (const [key, value] of Object.entries(sync)) {
-            if (key.startsWith('note:') && !noter.notes.find((n) => n.id === value.id)) {
-                removes.push(key)
-            }
-        }
-
-        for (const note of noter.notes) {
-            update[`note:${note.id}`] = note
-        }
-
-        noter.call.save.execute(() => {
-            chrome.storage.sync.set(update)
-            chrome.storage.sync.remove(removes)
-            logger.debug('noter: Sync done', { update, removes })
-        })
-    })
 }
 
 noter.createObject = (note) => {
@@ -111,24 +64,18 @@ noter.createElement = (note) => {
         <div click-emit="note_mark:${id},success"></div>
         <div click-emit="note_mark:${id},danger"></div>
     </div>
-    <textarea
-        autocomplete="off"
-        autocorrect="off"
-        autocapitalize="off"
+    <div class="note-editor"
+        contenteditable="true"
         spellcheck="false"
         note-editor-id="${id}"
-        style="width:${w}px;height:${h - 20}px;"
-    >${msg}</textarea>`
+        style="width:${w}px;height:${h - 20}px"
+    >${msg}</div>`
 
     noter.handleHashtag(dom)
     return dom
 }
 
 noter.add = (note) => {
-    if (noter.notes.length > noter.MAX_NOTE_NUMBER) {
-        return window.alert('The maximum number of notes has been reached')
-    }
-
     // New note don't have a id, push it to noter.notes
     if (note.id === undefined) {
         note.id = Date.now().toString()
@@ -155,8 +102,8 @@ noter.render = (clear = true, workspace = +storage.workspace || 0) => {
     logger.debug('noter: Render note', noter.notes)
 }
 
-noter.checkAndReplaceCode = (textarea) => {
-    const string = textarea.value
+noter.checkAndReplaceCode = (editor) => {
+    const string = editor.innerHTML
 
     holder.code_tables.forEach((code) => {
         const cregex = new RegExp(code.code)
@@ -166,7 +113,7 @@ noter.checkAndReplaceCode = (textarea) => {
             const datas = result.slice(1)
 
             const oldSelectionStart = textarea.selectionStart
-            const oldValue = textarea.value
+            const oldValue = editor.innerHTML
 
             let codeValue = code.value
 
@@ -174,29 +121,26 @@ noter.checkAndReplaceCode = (textarea) => {
                 codeValue = codeValue.replace('$', data)
             })
 
-            textarea.value = string.replace(cregex, codeValue)
+            editor.innerHTML = string.replace(cregex, codeValue)
 
-            const newSelectionStart = oldSelectionStart + textarea.value.length - oldValue.length
+            const newSelectionStart = oldSelectionStart + editor.innerHTML.length - oldValue.length
             textarea.setSelectionRange(newSelectionStart, newSelectionStart)
         }
     })
 }
 
 noter.handleHashtag = (dom) => {
-    const textarea = dom.querySelector('textarea')
-    const line = textarea.value.slice(0, textarea.value.indexOf('\n'))
-    let className = 'note'
+    const editor = dom.querySelector('.note-editor')
+    const head = editor.innerHTML.slice(0, 256)
 
-    if (line.startsWith('# ')) {
-        const hashtags = line.slice(2).split(' ').filter((t) => t)
-        console.log(hashtags)
+    const hashtags = head.match(/#[a-z0-9_]{1,12}/ig) || []
+    const classes = ['note']
 
-        if (hashtags.includes('monospace')) {
-            className += ' note-ffm'
-        }
+    if (hashtags.includes('#mono')) {
+        classes.push('note-ffm')
     }
 
-    dom.className = className
+    dom.className = classes.join(' ')
 }
 
 noter.remove = (id) => {
@@ -230,7 +174,7 @@ noter.handleOnChange = ({ target, key }) => {
         const index = noter.notes.findIndex((note) => note.id == id)
 
         // Check changed
-        if (noter.notes[index].msg === target.value) {
+        if (noter.notes[index].msg === target.innerHTML) {
             return
         }
 
@@ -242,12 +186,7 @@ noter.handleOnChange = ({ target, key }) => {
         // Handle note hashtag
         noter.handleHashtag(target.parentElement)
 
-        // Check max note character
-        if (target.value.length > noter.MAX_NOTE_CHARACTER) {
-            return window.alert('The maximum character has been reached')
-        }
-
-        noter.notes[index].msg = target.value
+        noter.notes[index].msg = target.innerHTML
         noter.save()
     }
 }
@@ -385,12 +324,14 @@ noter.boot = () => {
 
     // Listen sync notes cross tab
     chrome.storage.onChanged.addListener((change, namespace) => {
-        if (!document.hidden || namespace !== 'local' || !change.notes) {
+        if (namespace !== 'local') {
             return
         }
 
-        noter.notes = change.notes.newValue
-        noter.render()
+        if (change.notes && change.version?.newValue > noter.version) {
+            noter.notes = change.notes.newValue
+            noter.render()
+        }
     })
 
     noter.fetch()

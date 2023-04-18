@@ -294,25 +294,30 @@ body {
   z-index: 10;
 }
 
-.note > textarea {
+.note-editor {
   font-family: roboto, arial;
   padding: 10px;
   min-width: 300px;
   min-height: 80px;
   background: none;
   border: none;
-  margin-bottom: -3px;
+  resize: both;
+  overflow: auto;
 }
 
-.note > textarea::-webkit-scrollbar {
+.note-editor img {
+  vertical-align: bottom;
+}
+
+.note > .note-editor::-webkit-scrollbar {
   width: 10px;
 }
 
-.note > textarea::-webkit-scrollbar-track {
+.note > .note-editor::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.1);
 }
 
-.note > textarea::-webkit-scrollbar-thumb {
+.note > .note-editor::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.3);
 }
 
@@ -395,7 +400,7 @@ body {
   background: rgba(220, 53, 69, 0.7);
 }
 
-.note[note-status='danger'] > textarea {
+.note[note-status='danger'] > .note-editor {
   color: #fff0f0;
 }
 
@@ -403,7 +408,7 @@ body {
   background: rgba(0, 123, 255, 0.7);
 }
 
-.note[note-status='primary'] > textarea {
+.note[note-status='primary'] > .note-editor {
   color: #f0f0ff;
 }
 
@@ -411,11 +416,11 @@ body {
   background: rgba(40, 167, 69, 0.7);
 }
 
-.note[note-status='success'] > textarea {
+.note[note-status='success'] > .note-editor {
   color: #f0fff0;
 }
 
-.note-ffm > textarea {
+.note-ffm > .note-editor {
   font-family: monospace;
 }
 
