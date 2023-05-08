@@ -27,9 +27,4 @@ const wallForShow = wallpapers[Math.floor(Math.random() * wallpapers.length)]
 
 if (wallForShow) {
     window.wall.style.backgroundImage = `url(${wallForShow.url})`
-
-    setTimeout(() => {
-        window.wall_ghost_left.style.backgroundImage = `url(${wallForShow.url})`
-        window.wall_ghost_right.style.backgroundImage = `url(${wallForShow.url})`
-    }, 500)
 }

@@ -30,44 +30,6 @@ body {
   z-index: -1;
 }
 
-#wall_ghost_left {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: #000;
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-  z-index: 0;
-  transform: translate(-50px);
-  opacity: 0;
-}
-
-#wall_ghost_right {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: #000;
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-  z-index: 0;
-  transform: translate(50px);
-  opacity: 0;
-}
-
-.ghost-left {
-  animation: ghost-left 0.7s ease-in 0s infinite;
-}
-
-.ghost-right {
-  animation: ghost-right 0.7s ease-in 0s infinite;
-}
-
 .icon {
   display: inline-block;
   background-size: 100% 100%;
@@ -697,33 +659,5 @@ body {
     opacity: 0.2;
     width: 150px;
     height: 150px;
-  }
-}
-
-@keyframes ghost-left {
-  0% {
-    transform: translateX(0);
-    opacity: 0.7;
-  }
-  20% {
-    opacity: 0.2;
-  }
-  100% {
-    transform: translateX(-20px);
-    opacity: 0;
-  }
-}
-
-@keyframes ghost-right {
-  0% {
-    transform: translateX(0);
-    opacity: 0.7;
-  }
-  20% {
-    opacity: 0.2;
-  }
-  100% {
-    transform: translateX(20px);
-    opacity: 0;
   }
 }
