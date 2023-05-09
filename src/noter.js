@@ -277,7 +277,7 @@ noter.boot = () => {
     event.on('noter_switch_workspace', () => {
         let workspace = +storage.workspace || 0
 
-        if (workspace > 2) {
+        if (workspace > 1) {
             workspace = 0
         } else {
             workspace++

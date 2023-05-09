@@ -1,5 +1,5 @@
 import './prototype'
-import './wallpaper'
+import wallpaper from './wallpaper'
 import emitter from './core/emitter'
 import storage from './core/storage'
 import logger from './core/logger'
@@ -18,6 +18,7 @@ window.addEventListener('resize', () => {
     holder.w_h = window.document.documentElement.clientHeight
 })
 
+wallpaper.boot()
 noter.boot()
 bookmark.boot()
 emitter.click()

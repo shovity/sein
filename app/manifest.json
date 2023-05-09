@@ -10,7 +10,7 @@
   "chrome_url_overrides": {
     "newtab": "index.html"
   },
-  "permissions": ["bookmarks", "topSites", "storage", "favicon"],
+  "permissions": ["bookmarks", "topSites", "storage", "favicon", "unlimitedStorage"],
   "web_accessible_resources": [
     {
       "resources": ["_favicon/*"],

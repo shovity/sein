@@ -20,6 +20,16 @@ body {
   font-size: 12px;
 }
 
+.invisible {
+  opacity: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+}
+
 #wall {
   width: 100vw;
   height: 100vh;
@@ -28,6 +38,14 @@ body {
   background-size: cover;
   background-position: center;
   z-index: -1;
+}
+
+#wall_video {
+  position: fixed;
+  top: 0;
+  width: 100vw;
+  object-fit: cover;
+  height: 100vh;
 }
 
 .icon {
@@ -52,7 +70,7 @@ body {
 
 /*Bookmark Bar*/
 
-#r-snack {
+#r_snack {
   overflow-y: auto;
   padding-left: 10px;
   position: fixed;
@@ -63,11 +81,11 @@ body {
   z-index: 11;
 }
 
-#r-snack:hover {
+#r_snack:hover {
   transform: translateX(calc(-100% + 1px));
 }
 
-#r-snack:hover + #menu_float {
+#r_snack:hover + #menu_float {
   opacity: 0;
   pointer-events: none;
 }
@@ -81,16 +99,16 @@ body {
   min-height: 100vh;
 }
 
-#r-snack::-webkit-scrollbar {
+#r_snack::-webkit-scrollbar {
   background: rgba(0, 0, 0, 0.6);
   width: 5px;
 }
 
-#r-snack::-webkit-scrollbar-track {
+#r_snack::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.2);
 }
 
-#r-snack::-webkit-scrollbar-thumb {
+#r_snack::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.6);
 }
 
@@ -518,6 +536,19 @@ body {
   background: #282c34;
   margin: 0 200px;
   z-index: 1;
+}
+
+#setting_box::-webkit-scrollbar {
+  width: 6px;
+}
+
+#setting_box::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+#setting_box::-webkit-scrollbar-thumb {
+  background: rgba(180, 180, 180, 0.6);
+  border-radius: 4px;
 }
 
 .setting-close {
