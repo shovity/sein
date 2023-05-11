@@ -2,6 +2,7 @@ import storage from './core/storage'
 import logger from './core/logger'
 import event from './core/event'
 import util from './core/util'
+import modal from './modal'
 
 const noter = {
     notes: [],
@@ -266,6 +267,12 @@ noter.boot = () => {
 
     window.note_box.addEventListener('keyup', noter.handleOnChange)
     window.note_box.addEventListener('paste', noter.handleOnChange)
+
+    window.note_box.addEventListener('click', ({ target, preventDefault }) => {
+        if (target.tagName === 'IMG') {
+            modal.show(`<img src="${target.src}" style="max-width: calc(100vw - 50px)">`)
+        }
+    })
 
     // Listen add note
     event.on('noter_add', () => {

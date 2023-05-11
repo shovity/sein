@@ -288,6 +288,7 @@ body {
 .note-editor img {
   vertical-align: bottom;
   max-width: 100%;
+  cursor: pointer;
 }
 
 .note > .note-editor::-webkit-scrollbar {
@@ -691,4 +692,31 @@ body {
     width: 150px;
     height: 150px;
   }
+}
+
+/* Modal */
+
+#modal {
+  position: fixed;
+  text-align: center;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow-y: auto;
+  background: rgba(0, 0, 0, 0.3);
+  transition: opacity 0.2s ease-in-out, z-index 0.2s ease-in-out;
+  z-index: -2;
+  opacity: 0;
+}
+
+#modal_content {
+  display: inline-flex;
+  margin-top: 50px;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.125);
+}
+
+#modal.modal-show {
+  z-index: 50;
+  opacity: 1;
 }
