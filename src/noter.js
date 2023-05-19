@@ -9,6 +9,7 @@ const noter = {
 
     call: {
         move: util.raf(),
+        sync: util.throttle()
     },
     version: null,
 }
@@ -303,13 +304,16 @@ noter.boot = () => {
             return
         }
 
-        if (change.notes && change.version?.newValue > noter.version) {
-            noter.notes = change.notes.newValue
-            noter.render()
-        }
+        noter.call.sync.execute(() => {
+            if (change.notes && change.version?.newValue > noter.version) {
+                noter.notes = change.notes.newValue
+                noter.render()
+            }
+        })
     })
 
     noter.fetch()
+    window.n = noter
 }
 
 export default noter

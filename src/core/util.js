@@ -14,8 +14,8 @@ util.throttle = (wait = 200, trailling = true) => {
         }
 
         instance.lock = true
-        instance.handle = null
         instance.handle(...args)
+        instance.handle = null
 
         setTimeout(() => {
             instance.lock = false

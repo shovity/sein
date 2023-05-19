@@ -24,7 +24,7 @@ bookmark.boot()
 emitter.click()
 
 storage.config = storage.config || {
-    log_level: 'debug',
+    log_level: 'error',
 }
 
 logger.log_level = storage.config.log_level
