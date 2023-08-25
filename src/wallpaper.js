@@ -58,6 +58,10 @@ wallpaper.boot = () => {
     const wallpapers = storage.wallpapers || wallpaper.init()
     const pick = wallpapers[Math.floor(Math.random() * wallpapers.length)]
 
+    if (!pick) {
+        return
+    }
+
     window.wall.style.backgroundImage = `url(${pick.url})`
 
     if (pick.video > -1) {
