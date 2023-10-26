@@ -9,14 +9,6 @@ module.exports = {
         ecmaVersion: 'latest',
         sourceType: 'module',
     },
-    rules: {
-        'no-unused-vars': [
-            'error',
-            {
-                argsIgnorePattern: '^_|^next$',
-            },
-        ],
-    },
     globals: {
         holder: true,
         chrome: true,
@@ -27,5 +19,6 @@ module.exports = {
         NodeList: true,
         Blob: true,
         FileReader: true,
+        alert: true,
     },
 }

@@ -9,17 +9,17 @@ const noter = {
 
     call: {
         move: util.raf(),
-        sync: util.throttle()
+        sync: util.throttle(),
     },
     version: null,
 }
 
-noter.fetch = () => {
-    chrome.storage.local.get(['notes', 'version']).then((local) => {
-        noter.notes = local.notes || []
-        noter.version = local.version
-        noter.render()
-    })
+noter.fetch = async () => {
+    const local = await chrome.storage.local.get(['notes', 'version'])
+
+    noter.notes = local.notes || []
+    noter.version = local.version
+    noter.render()
 }
 
 noter.save = () => {
@@ -120,7 +120,14 @@ noter.handleHashtag = (dom) => {
 
 noter.remove = (id) => {
     const index = noter.notes.findIndex((note) => note.id == id)
-    noter.notes.splice(index, 1)
+
+    if (storage.workspace === -1) {
+        noter.notes.splice(index, 1)
+        console.log(noter.notes[index])
+    } else {
+        noter.notes[index].workspace = -1
+        noter.notes[index].removeAt = Date.now()
+    }
 
     // Remove dom
     const dom = window[`noteid_${id}`]
@@ -142,7 +149,7 @@ noter.mark = (id, status) => {
     noter.save()
 }
 
-noter.handleOnChange = ({ target, key }) => {
+noter.handleOnChange = ({ target }) => {
     const id = target.getAttribute('note-editor-id')
 
     if (id) {
@@ -269,7 +276,7 @@ noter.boot = () => {
     window.note_box.addEventListener('keyup', noter.handleOnChange)
     window.note_box.addEventListener('paste', noter.handleOnChange)
 
-    window.note_box.addEventListener('click', ({ target, preventDefault }) => {
+    window.note_box.addEventListener('click', ({ target }) => {
         if (target.tagName === 'IMG') {
             modal.show(`<img src="${target.src}" style="max-width: calc(100vw - 50px)">`)
         }
@@ -285,13 +292,13 @@ noter.boot = () => {
     event.on('noter_switch_workspace', () => {
         let workspace = +storage.workspace || 0
 
-        if (workspace > 1) {
-            workspace = 0
+        if (workspace > storage.config.number_of_workspace - 2) {
+            workspace = -1
         } else {
             workspace++
         }
 
-        window.switch_workspace_btn.innerHTML = workspace
+        window.switch_workspace_btn.innerHTML = workspace === -1 ? '🗑️' : workspace
         storage.workspace = workspace
 
         noter.save()
@@ -312,8 +319,17 @@ noter.boot = () => {
         })
     })
 
-    noter.fetch()
-    window.n = noter
+    noter.fetch().then(() => {
+        if (!storage.last_clear_trash || storage.last_clear_trash < Date.now() - 8e7) {
+            storage.last_clear_trash = Date.now()
+
+            noter.notes = noter.notes.filter((note) => {
+                return note.workspace !== -1 || note.removeAt > Date.now(864e5 * 30)
+            })
+
+            noter.save()
+        }
+    })
 }
 
 export default noter

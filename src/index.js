@@ -23,9 +23,22 @@ noter.boot()
 bookmark.boot()
 emitter.click()
 
-storage.config = storage.config || {
-    log_level: 'error',
+storage.config = Object.assign(
+    {
+        log_level: 'error',
+        number_of_workspace: 2,
+    },
+    storage.config,
+)
+
+if (storage.workspace) {
+    if (storage.workspace === -1) {
+        storage.workspace++
+    }
+
+    window.switch_workspace_btn.innerHTML = storage.workspace
+} else {
+    window.switch_workspace_btn.innerHTML = '0'
 }
 
 logger.log_level = storage.config.log_level
-window.switch_workspace_btn.innerHTML = storage.workspace || 0

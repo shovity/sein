@@ -15,7 +15,7 @@ setting.render = () => {
 
     window.settings_wallpapers.innerHTML = Array(12)
         .fill(1)
-        .map((wall, index) => {
+        .map(() => {
             return `
             <div class="settings-wall-pre"
                 style="width: ${walW}px; height: ${walH}px; background-image: url(/img/placeholder.png)"
