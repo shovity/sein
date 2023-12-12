@@ -324,7 +324,7 @@ noter.boot = () => {
             storage.last_clear_trash = Date.now()
 
             noter.notes = noter.notes.filter((note) => {
-                return note.workspace !== -1 || note.removeAt > Date.now(864e5 * 30)
+                return note.workspace !== -1 || note.removeAt > Date.now() + 864e5 * 30
             })
 
             noter.save()
