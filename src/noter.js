@@ -123,7 +123,6 @@ noter.remove = (id) => {
 
     if (storage.workspace === -1) {
         noter.notes.splice(index, 1)
-        console.log(noter.notes[index])
     } else {
         noter.notes[index].workspace = -1
         noter.notes[index].removeAt = Date.now()
