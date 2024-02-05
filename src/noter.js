@@ -49,31 +49,31 @@ noter.createObject = (note) => {
 }
 
 noter.createElement = (note) => {
-    const { id, msg, x, y, w, h, status } = note
     const dom = document.createElement('div')
 
-    dom.setAttribute('id', `noteid_${id}`)
+    dom.setAttribute('id', `noteid_${note.id}`)
     dom.setAttribute('class', 'note')
-    dom.setAttribute('style', `transform: translate(${x}px, ${y}px)`)
-    dom.setAttribute('note-status', status || 'default')
+    dom.setAttribute('style', `transform: translate(${note.x}px, ${note.y}px)`)
+    dom.setAttribute('note-status', note.status || 'default')
 
     dom.innerHTML = `
-    <div class="note-controls" note-move-id="${id}">
-        <div class="note-remove" click-emit="note_remove:${id}">&times;</div>
+    <div class="note-controls" note-move-id="${note.id}">
+        <div class="note-remove" click-emit="note_remove:${note.id}">&times;</div>
     </div>
     <div class="note-rainbow">
-        <div click-emit="note_mark:${id},primary"></div>
-        <div click-emit="note_mark:${id},success"></div>
-        <div click-emit="note_mark:${id},danger"></div>
+        <div click-emit="note_mark:${note.id},primary"></div>
+        <div click-emit="note_mark:${note.id},success"></div>
+        <div click-emit="note_mark:${note.id},danger"></div>
     </div>
     <div class="note-editor"
         contenteditable="true"
         spellcheck="false"
-        note-editor-id="${id}"
-        style="width:${w}px;height:${h - 20}px"
-    >${msg}</div>`
+        note-editor-id="${note.id}"
+        style="width:${note.w}px;height:${note.h - 20}px"
+    >${note.msg}</div>`
 
     noter.handleHashtag(dom)
+
     return dom
 }
 
@@ -242,11 +242,11 @@ noter.boot = () => {
         if (state.move !== false) {
             const x = event.clientX - state.deltaX
             const y = event.clientY - state.deltaY
-            const noteIndex = noter.notes.findIndex((note) => note.id == state.move)
+            const note = noter.notes.find((e) => e.id == state.move)
 
-            if (noteIndex !== -1) {
-                noter.notes[noteIndex].x = x
-                noter.notes[noteIndex].y = y
+            if (note) {
+                note.x = Math.max(0, Math.min(holder.w_w, x))
+                note.y = Math.max(0, Math.min(holder.w_h, y))
             }
 
             // End move handle
@@ -255,13 +255,11 @@ noter.boot = () => {
             // Save when done move a note
             noter.save()
         } else if (state.resize !== false) {
-            const index = noter.notes.findIndex((note) => note.id == state.resize)
-            const w = window['noteid_' + state.resize].offsetWidth
-            const h = window['noteid_' + state.resize].offsetHeight
+            const note = noter.notes.find((e) => e.id == state.resize)
 
-            if (index !== -1) {
-                noter.notes[index].w = w
-                noter.notes[index].h = h
+            if (note) {
+                note.w = window['noteid_' + state.resize].offsetWidth
+                note.h = window['noteid_' + state.resize].offsetHeight
             }
 
             // End resize handle
