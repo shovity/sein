@@ -5,58 +5,58 @@ import util from './core/util'
 import modal from './modal'
 
 const noter = {
-    notes: [],
+  notes: [],
 
-    call: {
-        move: util.raf(),
-        sync: util.throttle(),
-    },
-    version: null,
+  call: {
+    move: util.raf(),
+    sync: util.throttle(),
+  },
+  version: null,
 }
 
 noter.fetch = async () => {
-    const local = await chrome.storage.local.get(['notes', 'version'])
+  const local = await chrome.storage.local.get(['notes', 'version'])
 
-    noter.notes = local.notes || []
-    noter.version = local.version
-    noter.render()
+  noter.notes = local.notes || []
+  noter.version = local.version
+  noter.render()
 }
 
 noter.save = () => {
-    const version = Date.now()
+  const version = Date.now()
 
-    chrome.storage.local.set({
-        notes: noter.notes,
-        version,
-    })
+  chrome.storage.local.set({
+    notes: noter.notes,
+    version,
+  })
 
-    noter.version = version
-    logger.debug('noter: Noter save:', noter.notes)
+  noter.version = version
+  logger.debug('noter: Noter save:', noter.notes)
 }
 
 noter.createObject = (note) => {
-    const defaultData = {
-        msg: '',
-        x: Math.floor(Math.random() * (holder.w_w - 500)),
-        y: Math.floor(Math.random() * (holder.w_h - 250)),
-        w: 300,
-        h: 100,
-        workspace: storage.workspace,
-        status: 'default',
-    }
+  const defaultData = {
+    msg: '',
+    x: Math.floor(Math.random() * (holder.w_w - 500)),
+    y: Math.floor(Math.random() * (holder.w_h - 250)),
+    w: 300,
+    h: 100,
+    workspace: storage.workspace || 0,
+    status: 'default',
+  }
 
-    return Object.assign(defaultData, note)
+  return Object.assign(defaultData, note)
 }
 
 noter.createElement = (note) => {
-    const dom = document.createElement('div')
+  const dom = document.createElement('div')
 
-    dom.setAttribute('id', `noteid_${note.id}`)
-    dom.setAttribute('class', 'note')
-    dom.setAttribute('style', `transform: translate(${note.x}px, ${note.y}px)`)
-    dom.setAttribute('note-status', note.status || 'default')
+  dom.setAttribute('id', `noteid_${note.id}`)
+  dom.setAttribute('class', 'note')
+  dom.setAttribute('style', `transform: translate(${note.x}px, ${note.y}px)`)
+  dom.setAttribute('note-status', note.status || 'default')
 
-    dom.innerHTML = `
+  dom.innerHTML = `
     <div class="note-controls" note-move-id="${note.id}">
         <div class="note-remove" click-emit="note_remove:${note.id}">&times;</div>
     </div>
@@ -72,267 +72,267 @@ noter.createElement = (note) => {
         style="width:${note.w}px;height:${note.h - 20}px"
     >${note.msg}</div>`
 
-    noter.handleHashtag(dom)
+  noter.handleHashtag(dom)
 
-    return dom
+  return dom
 }
 
 noter.add = (note) => {
-    // New note don't have a id, push it to noter.notes
-    if (note.id === undefined) {
-        note.id = Date.now().toString()
-        noter.notes.push(note)
-    }
+  // New note don't have a id, push it to noter.notes
+  if (note.id === undefined) {
+    note.id = Date.now().toString()
+    noter.notes.push(note)
+  }
 
-    // Render html
-    window.note_box.appendChild(noter.createElement(note))
+  // Render html
+  window.note_box.appendChild(noter.createElement(note))
 }
 
 noter.render = (clear = true, workspace = +storage.workspace || 0) => {
-    // Clear before render
-    if (clear) {
-        window.note_box.innerHTML = ''
-    }
+  // Clear before render
+  if (clear) {
+    window.note_box.innerHTML = ''
+  }
 
-    // Loop adding
-    for (const note of noter.notes) {
-        if (workspace === note.workspace) {
-            noter.add(note)
-        }
+  // Loop adding
+  for (const note of noter.notes) {
+    if (workspace === note.workspace) {
+      noter.add(note)
     }
+  }
 
-    logger.debug('noter: Render note', noter.notes)
+  logger.debug('noter: Render note', noter.notes)
 }
 
 noter.handleHashtag = (dom) => {
-    const editor = dom.querySelector('.note-editor')
-    const head = editor.innerHTML.slice(0, 256)
+  const editor = dom.querySelector('.note-editor')
+  const head = editor.innerHTML.slice(0, 256)
 
-    const hashtags = head.match(/#[a-z0-9_]{1,12}/gi) || []
-    const classes = ['note']
+  const hashtags = head.match(/#[a-z0-9_]{1,12}/gi) || []
+  const classes = ['note']
 
-    if (hashtags.includes('#mono')) {
-        classes.push('note-ffm')
-    }
+  if (hashtags.includes('#mono')) {
+    classes.push('note-ffm')
+  }
 
-    dom.className = classes.join(' ')
+  dom.className = classes.join(' ')
 }
 
 noter.remove = (id) => {
-    const index = noter.notes.findIndex((note) => note.id == id)
+  const index = noter.notes.findIndex((note) => note.id == id)
 
-    if (storage.workspace === -1) {
-        noter.notes.splice(index, 1)
-    } else {
-        noter.notes[index].workspace = -1
-        noter.notes[index].removeAt = Date.now()
-    }
+  if (storage.workspace === -1) {
+    noter.notes.splice(index, 1)
+  } else {
+    noter.notes[index].workspace = -1
+    noter.notes[index].removeAt = Date.now()
+  }
 
-    // Remove dom
-    const dom = window[`noteid_${id}`]
-    dom.parentElement.removeChild(dom)
+  // Remove dom
+  const dom = window[`noteid_${id}`]
+  dom.parentElement.removeChild(dom)
 
-    noter.save()
+  noter.save()
 }
 
 noter.mark = (id, status) => {
-    const note = noter.notes.find((n) => n.id == id)
+  const note = noter.notes.find((n) => n.id == id)
 
-    if (note.status === status) {
-        note.status = 'default'
-    } else {
-        note.status = status
-    }
+  if (note.status === status) {
+    note.status = 'default'
+  } else {
+    note.status = status
+  }
 
-    window[`noteid_${id}`].setAttribute('note-status', note.status)
-    noter.save()
+  window[`noteid_${id}`].setAttribute('note-status', note.status)
+  noter.save()
 }
 
 noter.handleOnChange = ({ target }) => {
-    const id = target.getAttribute('note-editor-id')
+  const id = target.getAttribute('note-editor-id')
 
-    if (id) {
-        const index = noter.notes.findIndex((note) => note.id == id)
+  if (id) {
+    const index = noter.notes.findIndex((note) => note.id == id)
 
-        // Check changed
-        if (noter.notes[index].msg === target.innerHTML) {
-            return
-        }
-
-        // Handle note hashtag
-        noter.handleHashtag(target.parentElement)
-
-        noter.notes[index].msg = target.innerHTML
-        noter.save()
+    // Check changed
+    if (noter.notes[index].msg === target.innerHTML) {
+      return
     }
+
+    // Handle note hashtag
+    noter.handleHashtag(target.parentElement)
+
+    noter.notes[index].msg = target.innerHTML
+    noter.save()
+  }
 }
 
 noter.boot = () => {
-    const state = {
-        resize: false,
-        move: false,
-        deltaX: 0,
-        deltaY: 0,
+  const state = {
+    resize: false,
+    move: false,
+    deltaX: 0,
+    deltaY: 0,
+  }
+
+  event.on('note_remove', (id) => {
+    noter.remove(id)
+  })
+
+  event.on('note_mark', (mark) => {
+    const [id, status] = mark.split(',')
+    noter.mark(id, status)
+  })
+
+  // Handle move
+  window.note_box.addEventListener('mousedown', (event) => {
+    // Prevent right mouse
+    if (event.which === 3) {
+      return
     }
 
-    event.on('note_remove', (id) => {
-        noter.remove(id)
+    const { target } = event
+
+    // Detect resize
+    if (target.getAttribute('note-editor-id') !== null) {
+      const cx = event.clientX
+      const cy = event.clientY
+      const noteId = +target.getAttribute('note-editor-id')
+      const noteIndex = noter.notes.findIndex((note) => note.id == noteId)
+      const note = noter.notes[noteIndex]
+
+      // Detect mouse down over resize btn
+      if (note.x + note.w - cx < 15 && note.y + note.h - cy < 15) {
+        state.resize = noteId
+      }
+    }
+
+    if (target.getAttribute('note-move-id') !== null) {
+      const noteId = +target.getAttribute('note-move-id')
+      const noteIndex = noter.notes.findIndex((note) => note.id == noteId)
+
+      // Fix position mouse vs note
+      state.deltaX = event.clientX - noter.notes[noteIndex].x
+      state.deltaY = event.clientY - noter.notes[noteIndex].y
+
+      // Start move handle
+      state.move = noteId
+    }
+  })
+
+  window.addEventListener('mousemove', (event) => {
+    if (state.move === false) {
+      return
+    }
+
+    event.preventDefault()
+
+    noter.call.move.execute(() => {
+      const dom = window[`noteid_${state.move}`]
+
+      if (dom) {
+        const x = Math.min(holder.w_w - 20, Math.max(event.clientX - state.deltaX, 0))
+        const y = Math.min(holder.w_h - 20, Math.max(event.clientY - state.deltaY, 0))
+        dom.style.transform = `translate(${x}px, ${y}px)`
+      }
     })
+  })
 
-    event.on('note_mark', (mark) => {
-        const [id, status] = mark.split(',')
-        noter.mark(id, status)
-    })
+  window.addEventListener('mouseup', (event) => {
+    if (state.move !== false) {
+      const x = event.clientX - state.deltaX
+      const y = event.clientY - state.deltaY
+      const note = noter.notes.find((e) => e.id == state.move)
 
-    // Handle move
-    window.note_box.addEventListener('mousedown', (event) => {
-        // Prevent right mouse
-        if (event.which === 3) {
-            return
-        }
+      if (note) {
+        note.x = Math.max(0, Math.min(holder.w_w, x))
+        note.y = Math.max(0, Math.min(holder.w_h, y))
+      }
 
-        const { target } = event
+      // End move handle
+      state.move = false
 
-        // Detect resize
-        if (target.getAttribute('note-editor-id') !== null) {
-            const cx = event.clientX
-            const cy = event.clientY
-            const noteId = +target.getAttribute('note-editor-id')
-            const noteIndex = noter.notes.findIndex((note) => note.id == noteId)
-            const note = noter.notes[noteIndex]
+      // Save when done move a note
+      noter.save()
+    } else if (state.resize !== false) {
+      const note = noter.notes.find((e) => e.id == state.resize)
 
-            // Detect mouse down over resize btn
-            if (note.x + note.w - cx < 15 && note.y + note.h - cy < 15) {
-                state.resize = noteId
-            }
-        }
+      if (note) {
+        note.w = window['noteid_' + state.resize].offsetWidth
+        note.h = window['noteid_' + state.resize].offsetHeight
+      }
 
-        if (target.getAttribute('note-move-id') !== null) {
-            const noteId = +target.getAttribute('note-move-id')
-            const noteIndex = noter.notes.findIndex((note) => note.id == noteId)
+      // End resize handle
+      state.resize = false
 
-            // Fix position mouse vs note
-            state.deltaX = event.clientX - noter.notes[noteIndex].x
-            state.deltaY = event.clientY - noter.notes[noteIndex].y
+      // Save when done move a note
+      noter.save()
+    }
+  })
 
-            // Start move handle
-            state.move = noteId
-        }
-    })
+  window.note_box.addEventListener('keyup', noter.handleOnChange)
+  window.note_box.addEventListener('paste', noter.handleOnChange)
 
-    window.addEventListener('mousemove', (event) => {
-        if (state.move === false) {
-            return
-        }
+  window.note_box.addEventListener('click', ({ target }) => {
+    if (target.tagName === 'IMG') {
+      modal.show(`<img src="${target.src}" style="max-width: calc(100vw - 50px)">`)
+    }
+  })
 
-        event.preventDefault()
+  // Listen add note
+  event.on('noter_add', () => {
+    noter.add(noter.createObject())
+    noter.save()
+  })
 
-        noter.call.move.execute(() => {
-            const dom = window[`noteid_${state.move}`]
+  // Listen switch workspace
+  event.on('noter_switch_workspace', () => {
+    let workspace = +storage.workspace || 0
 
-            if (dom) {
-                const x = Math.min(holder.w_w - 20, Math.max(event.clientX - state.deltaX, 0))
-                const y = Math.min(holder.w_h - 20, Math.max(event.clientY - state.deltaY, 0))
-                dom.style.transform = `translate(${x}px, ${y}px)`
-            }
-        })
-    })
+    if (workspace > storage.config.number_of_workspace - 2) {
+      workspace = -1
+    } else {
+      workspace++
+    }
 
-    window.addEventListener('mouseup', (event) => {
-        if (state.move !== false) {
-            const x = event.clientX - state.deltaX
-            const y = event.clientY - state.deltaY
-            const note = noter.notes.find((e) => e.id == state.move)
+    window.switch_workspace_btn.innerHTML = workspace === -1 ? '🗑️' : workspace
+    storage.workspace = workspace
 
-            if (note) {
-                note.x = Math.max(0, Math.min(holder.w_w, x))
-                note.y = Math.max(0, Math.min(holder.w_h, y))
-            }
+    noter.save()
+    noter.render()
+  })
 
-            // End move handle
-            state.move = false
+  // Listen sync notes cross tab
+  chrome.storage.onChanged.addListener((change, namespace) => {
+    if (namespace !== 'local') {
+      return
+    }
 
-            // Save when done move a note
-            noter.save()
-        } else if (state.resize !== false) {
-            const note = noter.notes.find((e) => e.id == state.resize)
-
-            if (note) {
-                note.w = window['noteid_' + state.resize].offsetWidth
-                note.h = window['noteid_' + state.resize].offsetHeight
-            }
-
-            // End resize handle
-            state.resize = false
-
-            // Save when done move a note
-            noter.save()
-        }
-    })
-
-    window.note_box.addEventListener('keyup', noter.handleOnChange)
-    window.note_box.addEventListener('paste', noter.handleOnChange)
-
-    window.note_box.addEventListener('click', ({ target }) => {
-        if (target.tagName === 'IMG') {
-            modal.show(`<img src="${target.src}" style="max-width: calc(100vw - 50px)">`)
-        }
-    })
-
-    // Listen add note
-    event.on('noter_add', () => {
-        noter.add(noter.createObject())
-        noter.save()
-    })
-
-    // Listen switch workspace
-    event.on('noter_switch_workspace', () => {
-        let workspace = +storage.workspace || 0
-
-        if (workspace > storage.config.number_of_workspace - 2) {
-            workspace = -1
-        } else {
-            workspace++
-        }
-
-        window.switch_workspace_btn.innerHTML = workspace === -1 ? '🗑️' : workspace
-        storage.workspace = workspace
-
-        noter.save()
+    noter.call.sync.execute(() => {
+      if (change.notes && change.version?.newValue > noter.version) {
+        noter.notes = change.notes.newValue
         noter.render()
+      }
     })
+  })
 
-    // Listen sync notes cross tab
-    chrome.storage.onChanged.addListener((change, namespace) => {
-        if (namespace !== 'local') {
-            return
+  noter.fetch().then(() => {
+    if (!storage.last_clear_trash || storage.last_clear_trash < Date.now() - 8e7) {
+      storage.last_clear_trash = Date.now()
+
+      noter.notes = noter.notes.filter((note) => {
+        if (note.workspace !== -1) {
+          return true
         }
 
-        noter.call.sync.execute(() => {
-            if (change.notes && change.version?.newValue > noter.version) {
-                noter.notes = change.notes.newValue
-                noter.render()
-            }
-        })
-    })
-
-    noter.fetch().then(() => {
-        if (!storage.last_clear_trash || storage.last_clear_trash < Date.now() - 8e7) {
-            storage.last_clear_trash = Date.now()
-
-            noter.notes = noter.notes.filter((note) => {
-                if (note.workspace !== -1) {
-                    return true
-                }
-
-                if (note.removeAt > Date.now() - 864e5 * 30) {
-                    return true
-                }
-            })
-
-            noter.save()
+        if (note.removeAt > Date.now() - 864e5 * 30) {
+          return true
         }
-    })
+      })
+
+      noter.save()
+    }
+  })
 }
 
 export default noter

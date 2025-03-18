@@ -9,13 +9,13 @@ import './waver'
 import './setting'
 
 window.holder = {
-    w_w: window.document.documentElement.clientWidth,
-    w_h: window.document.documentElement.clientHeight,
+  w_w: window.document.documentElement.clientWidth,
+  w_h: window.document.documentElement.clientHeight,
 }
 
 window.addEventListener('resize', () => {
-    holder.w_w = window.document.documentElement.clientWidth
-    holder.w_h = window.document.documentElement.clientHeight
+  holder.w_w = window.document.documentElement.clientWidth
+  holder.w_h = window.document.documentElement.clientHeight
 })
 
 wallpaper.boot()
@@ -24,21 +24,21 @@ bookmark.boot()
 emitter.click()
 
 storage.config = Object.assign(
-    {
-        log_level: 'error',
-        number_of_workspace: 2,
-    },
-    storage.config,
+  {
+    log_level: 'error',
+    number_of_workspace: 2,
+  },
+  storage.config,
 )
 
 if (storage.workspace) {
-    if (storage.workspace === -1) {
-        storage.workspace++
-    }
+  if (storage.workspace === -1) {
+    storage.workspace++
+  }
 
-    window.switch_workspace_btn.innerHTML = storage.workspace
+  window.switch_workspace_btn.innerHTML = storage.workspace
 } else {
-    window.switch_workspace_btn.innerHTML = '0'
+  window.switch_workspace_btn.innerHTML = '0'
 }
 
 logger.log_level = storage.config.log_level

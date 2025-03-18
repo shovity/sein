@@ -4,23 +4,23 @@ const storage = {}
 const handler = {}
 
 handler.get = (target, key) => {
-    if (key === 'origin') {
-        return target
-    }
+  if (key === 'origin') {
+    return target
+  }
 
-    const raw = window.localStorage[key]
+  const raw = window.localStorage[key]
 
-    try {
-        return raw && JSON.parse(raw)
-    } catch (error) {
-        return logger.error('storage: Parse json fail, key: ', key)
-    }
+  try {
+    return raw && JSON.parse(raw)
+  } catch (error) {
+    return logger.error('storage: Parse json fail, key: ', key)
+  }
 }
 
 handler.set = (target, key, value) => {
-    window.localStorage[key] = JSON.stringify(value)
-    target[key] = value
-    return true
+  window.localStorage[key] = JSON.stringify(value)
+  target[key] = value
+  return true
 }
 
 export default new Proxy(storage, handler)

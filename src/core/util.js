@@ -1,69 +1,69 @@
 const util = {}
 
 util.throttle = (wait = 200, trailling = true) => {
-    const instance = {
-        lock: false,
-        handle: null,
+  const instance = {
+    lock: false,
+    handle: null,
+  }
+
+  instance.execute = (handle, ...args) => {
+    instance.handle = handle
+
+    if (instance.lock) {
+      return
     }
 
-    instance.execute = (handle, ...args) => {
-        instance.handle = handle
+    instance.lock = true
+    instance.handle(...args)
+    instance.handle = null
 
-        if (instance.lock) {
-            return
-        }
+    setTimeout(() => {
+      instance.lock = false
 
-        instance.lock = true
-        instance.handle(...args)
-        instance.handle = null
+      if (trailling && instance.handle) {
+        instance.execute(instance.handle, ...args)
+      }
+    }, wait)
+  }
 
-        setTimeout(() => {
-            instance.lock = false
-
-            if (trailling && instance.handle) {
-                instance.execute(instance.handle, ...args)
-            }
-        }, wait)
-    }
-
-    return instance
+  return instance
 }
 
 util.debounce = (wait = 200) => {
-    const instance = {
-        timeout: null,
-    }
+  const instance = {
+    timeout: null,
+  }
 
-    instance.execute = (handle, ...args) => {
-        clearTimeout(instance.timeout)
-        instance.timeout = setTimeout(handle, wait, ...args)
-    }
+  instance.execute = (handle, ...args) => {
+    clearTimeout(instance.timeout)
+    instance.timeout = setTimeout(handle, wait, ...args)
+  }
 
-    return instance
+  return instance
 }
 
 util.raf = () => {
-    const instance = {
-        lock: false,
-        handle: null,
+  const instance = {
+    lock: false,
+    handle: null,
+  }
+
+  instance.execute = (handle, ...args) => {
+    instance.handle = handle
+
+    if (instance.lock) {
+      return
     }
 
-    instance.execute = (handle, ...args) => {
-        instance.handle = handle
+    instance.lock = true
 
-        if (instance.lock) {
-            return
-        }
+    window.requestAnimationFrame(() => {
+      instance.lock = false
+      instance.handle(...args)
+    })
+  }
 
-        instance.lock = true
-
-        window.requestAnimationFrame(() => {
-            instance.lock = false
-            instance.handle(...args)
-        })
-    }
-
-    return instance
+  return instance
 }
 
 export default util
