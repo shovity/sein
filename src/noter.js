@@ -14,6 +14,10 @@ const noter = {
   version: null,
 }
 
+const state = {
+  eqCodeReady: null,
+}
+
 noter.fetch = async () => {
   const local = await chrome.storage.local.get(['notes', 'version'])
 
@@ -104,6 +108,47 @@ noter.render = (clear = true, workspace = +storage.workspace || 0) => {
   logger.debug('noter: Render note', noter.notes)
 }
 
+noter.handleEqcode = (editor) => {
+  // Insert marker
+  const sel = window.getSelection()
+  const range = sel.getRangeAt(0)
+  const markerEl = document.createElement('span')
+  markerEl.id = 'caret-marker'
+  markerEl.appendChild(document.createTextNode('\u200B'))
+  range.insertNode(markerEl)
+
+  const string = editor.innerHTML
+
+  holder.code_tables.forEach((code) => {
+    const cregex = new RegExp(code.code)
+    const result = string.match(cregex)
+
+    if (result) {
+      // Data embedded in command code ex. 'name_(.+?)=='
+      const replaces = result.slice(1)
+      let codeValue = code.value
+
+      for (const replace of replaces) {
+        codeValue = codeValue.replace('$', replace)
+      }
+
+      editor.innerHTML = string.replace(cregex, codeValue)
+    }
+  })
+
+  // Restore carte and remove marker
+  const newMarker = document.getElementById('caret-marker')
+
+  if (newMarker) {
+    const newRange = document.createRange()
+    newRange.setStartAfter(newMarker)
+    newRange.collapse(true)
+    newMarker.parentNode.removeChild(newMarker)
+    sel.removeAllRanges()
+    sel.addRange(newRange)
+  }
+}
+
 noter.handleHashtag = (dom) => {
   const editor = dom.querySelector('.note-editor')
   const head = editor.innerHTML.slice(0, 256)
@@ -148,7 +193,7 @@ noter.mark = (id, status) => {
   noter.save()
 }
 
-noter.handleOnChange = ({ target }) => {
+noter.handleOnChange = ({ target, key }) => {
   const id = target.getAttribute('note-editor-id')
 
   if (id) {
@@ -162,8 +207,19 @@ noter.handleOnChange = ({ target }) => {
     // Handle note hashtag
     noter.handleHashtag(target.parentElement)
 
+    // Handle note code
+    if (key === '=') {
+      if (state.eqCodeReady) {
+        noter.handleEqcode(target)
+        state.eqCodeReady = false
+      } else {
+        state.eqCodeReady = true
+      }
+    }
+
     noter.notes[index].msg = target.innerHTML
     noter.save()
+    state.lastKeyUp = key
   }
 }
 
