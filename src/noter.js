@@ -237,8 +237,17 @@ noter.pull = async () => {
     return
   }
 
+  const [url, secret] = storage.config.sync_url.split('#')
+
   const now = Date.now()
-  const response = await fetch(`${storage.config.sync_url}?date=${storage.pull_date}`)
+
+  const response = await fetch(`${url}?date=${storage.pull_date}`, {
+    method: 'GET',
+    headers: {
+      'X-Secret': secret,
+    },
+  })
+
   const { data } = await response.json()
 
   if (!data?.length) {
@@ -272,13 +281,15 @@ noter.push = async () => {
   })
 
   const now = Date.now()
+  const [url, secret] = storage.config.sync_url.split('#')
 
   if (notes.length) {
-    await fetch(storage.config.sync_url, {
+    await fetch(url, {
       method: 'POST',
       body: JSON.stringify({ notes }),
       headers: {
         'Content-Type': 'application/json',
+        'X-Secret': secret,
       },
     })
   }
