@@ -5,17 +5,17 @@ import util from './core/util'
 import modal from './modal'
 
 const noter = {
-  notes: [],
+  pull_cooldown: 10000,
 
   call: {
     move: util.raf(),
     sync: util.throttle(),
+    push: util.debounce(1000),
   },
-  version: null,
-}
 
-const state = {
+  version: null,
   eqCodeReady: null,
+  notes: [],
 }
 
 noter.fetch = async () => {
@@ -35,6 +35,8 @@ noter.save = () => {
   })
 
   noter.version = version
+  noter.call.push.execute(noter.push)
+
   logger.debug('noter: Noter save:', noter.notes)
 }
 
@@ -85,6 +87,7 @@ noter.add = (note) => {
   // New note don't have a id, push it to noter.notes
   if (note.id === undefined) {
     note.id = Date.now().toString()
+    note.updatedAt = Date.now()
     noter.notes.push(note)
   }
 
@@ -166,11 +169,12 @@ noter.handleHashtag = (dom) => {
 noter.remove = (id) => {
   const index = noter.notes.findIndex((note) => note.id == id)
 
-  if (storage.workspace === -1) {
+  if (storage.workspace === -1 || !noter.notes[index].msg) {
     noter.notes.splice(index, 1)
   } else {
     noter.notes[index].workspace = -1
     noter.notes[index].removeAt = Date.now()
+    noter.notes[index].updatedAt = Date.now()
   }
 
   // Remove dom
@@ -209,18 +213,97 @@ noter.handleOnChange = ({ target, key }) => {
 
     // Handle note code
     if (key === '=') {
-      if (state.eqCodeReady) {
+      if (noter.eqCodeReady) {
         noter.handleEqcode(target)
-        state.eqCodeReady = false
+        noter.eqCodeReady = false
       } else {
-        state.eqCodeReady = true
+        noter.eqCodeReady = true
       }
     }
 
     noter.notes[index].msg = target.innerHTML
+    noter.notes[index].updatedAt = Date.now()
+
     noter.save()
-    state.lastKeyUp = key
   }
+}
+
+noter.pull = async () => {
+  if (!storage.config.sync_url) {
+    return
+  }
+
+  if (storage.pull_date > Date.now() - noter.pull_cooldown) {
+    return
+  }
+
+  const now = Date.now()
+  const response = await fetch(`${storage.config.sync_url}?date=${storage.pull_date}`)
+  const { data } = await response.json()
+
+  if (!data?.length) {
+    return
+  }
+
+  const map = {}
+
+  for (const note of noter.notes) {
+    map[note.id] = note
+  }
+
+  for (const { raw: note } of data) {
+    map[note.id] = note
+  }
+
+  noter.notes = Object.values(map)
+  noter.render()
+  noter.save()
+
+  storage.pull_date = now
+}
+
+noter.push = async () => {
+  if (!storage.config.sync_url) {
+    return
+  }
+
+  const notes = noter.notes.filter((note) => {
+    return +note.updatedAt > (+storage.push_date || 0) && note.msg
+  })
+
+  const now = Date.now()
+
+  if (notes.length) {
+    await fetch(storage.config.sync_url, {
+      method: 'POST',
+      body: JSON.stringify({ notes }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+  }
+
+  storage.push_date = now
+}
+
+noter.clearTrash = () => {
+  if (storage.last_clear_trash > Date.now() - 8e7) {
+    return
+  }
+
+  storage.last_clear_trash = Date.now()
+
+  noter.notes = noter.notes.filter((note) => {
+    if (note.workspace !== -1) {
+      return true
+    }
+
+    if (note.removeAt > Date.now() - 864e5 * 30) {
+      return true
+    }
+  })
+
+  noter.save()
 }
 
 noter.boot = () => {
@@ -303,6 +386,7 @@ noter.boot = () => {
       if (note) {
         note.x = Math.max(0, Math.min(holder.w_w, x))
         note.y = Math.max(0, Math.min(holder.w_h, y))
+        note.updatedAt = Date.now()
       }
 
       // End move handle
@@ -372,22 +456,10 @@ noter.boot = () => {
     })
   })
 
-  noter.fetch().then(() => {
-    if (!storage.last_clear_trash || storage.last_clear_trash < Date.now() - 8e7) {
-      storage.last_clear_trash = Date.now()
-
-      noter.notes = noter.notes.filter((note) => {
-        if (note.workspace !== -1) {
-          return true
-        }
-
-        if (note.removeAt > Date.now() - 864e5 * 30) {
-          return true
-        }
-      })
-
-      noter.save()
-    }
+  noter.fetch().then(async () => {
+    noter.clearTrash()
+    await noter.push()
+    await noter.pull()
   })
 }
 

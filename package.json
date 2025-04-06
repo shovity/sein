@@ -9,7 +9,7 @@
   "private": true,
   "scripts": {
     "build": "webpack --mode=production",
-    "watch": "webpack --watch --mode=development",
+    "dev": "webpack --watch --mode=development",
     "format": "prettier --write .",
     "lint": "eslint . --fix"
   },
