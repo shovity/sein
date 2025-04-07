@@ -252,6 +252,7 @@ noter.pull = async () => {
 
   if (data?.length) {
     const map = {}
+    let shouldRender = false
 
     for (const note of noter.notes) {
       map[note.id] = note
@@ -260,12 +261,15 @@ noter.pull = async () => {
     for (const { raw: note } of data) {
       if (!map[note.id]?.updatedAt || map[note.id].updatedAt < note.updatedAt) {
         map[note.id] = note
+        shouldRender = true
       }
     }
 
-    noter.notes = Object.values(map)
-    noter.render()
-    noter.save()
+    if (shouldRender) {
+      noter.notes = Object.values(map)
+      noter.render()
+      noter.save()
+    }
   }
 
   storage.pull_date = now
