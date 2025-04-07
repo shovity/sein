@@ -241,7 +241,7 @@ noter.pull = async () => {
 
   const now = Date.now()
 
-  const response = await fetch(`${url}?date=${storage.pull_date}`, {
+  const response = await fetch(`${url}?date=${storage.pull_date || 0}`, {
     method: 'GET',
     headers: {
       'X-Secret': secret,
@@ -261,7 +261,9 @@ noter.pull = async () => {
   }
 
   for (const { raw: note } of data) {
-    map[note.id] = note
+    if (!map[note.id]?.updatedAt || map[note.id].updatedAt < note.updatedAt) {
+      map[note.id] = note
+    }
   }
 
   noter.notes = Object.values(map)
