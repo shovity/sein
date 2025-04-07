@@ -250,25 +250,23 @@ noter.pull = async () => {
 
   const { data } = await response.json()
 
-  if (!data?.length) {
-    return
-  }
+  if (data?.length) {
+    const map = {}
 
-  const map = {}
-
-  for (const note of noter.notes) {
-    map[note.id] = note
-  }
-
-  for (const { raw: note } of data) {
-    if (!map[note.id]?.updatedAt || map[note.id].updatedAt < note.updatedAt) {
+    for (const note of noter.notes) {
       map[note.id] = note
     }
-  }
 
-  noter.notes = Object.values(map)
-  noter.render()
-  noter.save()
+    for (const { raw: note } of data) {
+      if (!map[note.id]?.updatedAt || map[note.id].updatedAt < note.updatedAt) {
+        map[note.id] = note
+      }
+    }
+
+    noter.notes = Object.values(map)
+    noter.render()
+    noter.save()
+  }
 
   storage.pull_date = now
 }
