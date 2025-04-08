@@ -349,6 +349,7 @@ noter.boot = () => {
 
     // Detect resize
     if (target.getAttribute('note-editor-id') !== null) {
+      // TODO: Handle disable select when resize
       const cx = event.clientX
       const cy = event.clientY
       const noteId = +target.getAttribute('note-editor-id')
@@ -362,6 +363,9 @@ noter.boot = () => {
     }
 
     if (target.getAttribute('note-move-id') !== null) {
+      // Disable text selection
+      document.body.style.userSelect = 'none'
+
       const noteId = +target.getAttribute('note-move-id')
       const noteIndex = noter.notes.findIndex((note) => note.id == noteId)
 
@@ -393,6 +397,9 @@ noter.boot = () => {
   })
 
   window.addEventListener('mouseup', (event) => {
+    // Recover text selection
+    document.body.style.userSelect = ''
+
     if (state.move !== false) {
       const x = event.clientX - state.deltaX
       const y = event.clientY - state.deltaY
@@ -415,6 +422,7 @@ noter.boot = () => {
       if (note) {
         note.w = window['noteid_' + state.resize].offsetWidth
         note.h = window['noteid_' + state.resize].offsetHeight
+        note.updatedAt = Date.now()
       }
 
       // End resize handle
