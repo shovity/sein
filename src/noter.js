@@ -169,7 +169,7 @@ noter.handleHashtag = (dom) => {
 noter.remove = (id) => {
   const index = noter.notes.findIndex((note) => note.id == id)
 
-  if (storage.workspace === -1 || !noter.notes[index].msg) {
+  if (storage.workspace === -1 || !noter.notes[index].msg.replace(/(<br>)| /g, '')) {
     noter.notes.splice(index, 1)
   } else {
     noter.notes[index].workspace = -1
@@ -241,7 +241,17 @@ noter.pull = async () => {
 
   const now = Date.now()
 
-  const response = await fetch(`${url}?date=${storage.pull_date || 0}`, {
+  const excludes = noter.notes.filter((note) => {
+    return note.updatedAt >= +storage.pull_date
+  })
+
+  const exclude = excludes
+    .map((note) => {
+      return `${note.id}:${note.updatedAt}`
+    })
+    .join(',')
+
+  const response = await fetch(`${url}?date=${storage.pull_date || 0}&exclude=${exclude}`, {
     method: 'GET',
     headers: {
       'X-Secret': secret,
