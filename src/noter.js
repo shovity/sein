@@ -331,6 +331,185 @@ noter.clearTrash = () => {
   noter.save()
 }
 
+noter.sort = () => {
+  if (!noter.notes.length) return
+
+  // Get current workspace notes
+  const workspace = +storage.workspace || 0
+  const workspaceNotes = noter.notes.filter((note) => note.workspace === workspace)
+
+  if (!workspaceNotes.length) return
+
+  // Available screen dimensions (subtract margins)
+  const screenWidth = holder.w_w - 20
+  const screenHeight = holder.w_h - 20
+  const spacing = 10
+  const leftMargin = 10
+
+  // MaxRects Algorithm implementation
+  class MaxRects {
+    constructor(width, height) {
+      this.width = width
+      this.height = height
+      this.usedRects = []
+      this.freeRects = [{ x: 0, y: 0, width, height }]
+    }
+
+    // Find the best fit for a rectangle
+    findBestFit(rectWidth, rectHeight) {
+      let bestScore = -1
+      let bestRect = null
+      let bestIndex = -1
+
+      for (let i = 0; i < this.freeRects.length; i++) {
+        const freeRect = this.freeRects[i]
+
+        if (rectWidth <= freeRect.width && rectHeight <= freeRect.height) {
+          // Calculate score based on how well the rectangle fits
+          const score = Math.min(freeRect.width - rectWidth, freeRect.height - rectHeight)
+
+          if (score > bestScore) {
+            bestScore = score
+            bestRect = freeRect
+            bestIndex = i
+          }
+        }
+      }
+
+      return { rect: bestRect, index: bestIndex }
+    }
+
+    // Place a rectangle in the best available space
+    placeRect(rectWidth, rectHeight) {
+      const { rect, index } = this.findBestFit(rectWidth, rectHeight)
+
+      if (!rect) return null
+
+      // Remove the used free rectangle
+      this.freeRects.splice(index, 1)
+
+      // Place the rectangle
+      const placedRect = {
+        x: rect.x,
+        y: rect.y,
+        width: rectWidth,
+        height: rectHeight,
+      }
+      this.usedRects.push(placedRect)
+
+      // Split the remaining space into new free rectangles
+      this.splitFreeRect(rect, placedRect)
+
+      return placedRect
+    }
+
+    // Split free rectangle after placing a new rectangle
+    splitFreeRect(freeRect, placedRect) {
+      // Calculate remaining space
+      const remainingWidth = freeRect.width - placedRect.width
+      const remainingHeight = freeRect.height - placedRect.height
+
+      // Add new free rectangles
+      if (remainingWidth > 0) {
+        this.freeRects.push({
+          x: freeRect.x + placedRect.width,
+          y: freeRect.y,
+          width: remainingWidth,
+          height: freeRect.height,
+        })
+      }
+
+      if (remainingHeight > 0) {
+        this.freeRects.push({
+          x: freeRect.x,
+          y: freeRect.y + placedRect.height,
+          width: placedRect.width,
+          height: remainingHeight,
+        })
+      }
+
+      // Merge overlapping free rectangles
+      this.mergeFreeRects()
+    }
+
+    // Merge overlapping free rectangles
+    mergeFreeRects() {
+      for (let i = 0; i < this.freeRects.length; i++) {
+        for (let j = i + 1; j < this.freeRects.length; j++) {
+          const rect1 = this.freeRects[i]
+          const rect2 = this.freeRects[j]
+
+          if (this.canMerge(rect1, rect2)) {
+            const mergedRect = this.mergeRects(rect1, rect2)
+            this.freeRects.splice(j, 1)
+            this.freeRects.splice(i, 1)
+            this.freeRects.push(mergedRect)
+            return this.mergeFreeRects() // Recursively merge
+          }
+        }
+      }
+    }
+
+    // Check if two rectangles can be merged
+    canMerge(rect1, rect2) {
+      return (
+        (rect1.x === rect2.x &&
+          rect1.width === rect2.width &&
+          (rect1.y + rect1.height === rect2.y || rect2.y + rect2.height === rect1.y)) ||
+        (rect1.y === rect2.y &&
+          rect1.height === rect2.height &&
+          (rect1.x + rect1.width === rect2.x || rect2.x + rect2.width === rect1.x))
+      )
+    }
+
+    // Merge two rectangles
+    mergeRects(rect1, rect2) {
+      return {
+        x: Math.min(rect1.x, rect2.x),
+        y: Math.min(rect1.y, rect2.y),
+        width: Math.max(rect1.x + rect1.width, rect2.x + rect2.width) - Math.min(rect1.x, rect2.x),
+        height: Math.max(rect1.y + rect1.height, rect2.y + rect2.height) - Math.min(rect1.y, rect2.y),
+      }
+    }
+  }
+
+  // Sort notes by area (largest first) for better packing
+  const sortedNotes = [...workspaceNotes].sort((a, b) => b.w * b.h - a.w * a.h)
+
+  // Initialize MaxRects with screen dimensions
+  const maxRects = new MaxRects(screenWidth - leftMargin, screenHeight)
+
+  // Place each note using MaxRects algorithm
+  for (const note of sortedNotes) {
+    const placedRect = maxRects.placeRect(note.w + spacing, note.h + spacing)
+
+    if (placedRect) {
+      note.x = placedRect.x + leftMargin
+      note.y = placedRect.y
+    } else {
+      // If can't fit, place at the end
+      note.x = leftMargin
+      note.y = screenHeight - note.h
+    }
+  }
+
+  // Update all notes with new positions
+  for (const note of workspaceNotes) {
+    const index = noter.notes.findIndex((n) => n.id === note.id)
+    if (index !== -1) {
+      noter.notes[index].x = note.x
+      noter.notes[index].y = note.y
+      noter.notes[index].updatedAt = Date.now()
+    }
+  }
+
+  // Re-render and save
+  noter.render()
+  noter.save()
+
+  logger.debug('noter: Sorted notes using MaxRects algorithm')
+}
+
 noter.boot = () => {
   const state = {
     resize: false,
@@ -468,11 +647,16 @@ noter.boot = () => {
       workspace++
     }
 
-    window.switch_workspace_btn.innerHTML = workspace === -1 ? '🗑️' : workspace
+    window.btn_switch_workspace.innerHTML = workspace === -1 ? '🗑️' : workspace
     storage.workspace = workspace
 
     noter.save()
     noter.render()
+  })
+
+  // Listen sort notes
+  event.on('noter_sort', () => {
+    noter.sort()
   })
 
   // Listen sync notes cross tab

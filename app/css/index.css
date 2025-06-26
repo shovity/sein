@@ -61,13 +61,6 @@ body {
   margin-bottom: -5px;
 }
 
-.icon-settings {
-  background-image: url(../img/settings.png);
-  width: 26px;
-  height: 26px;
-  margin-bottom: -5px;
-}
-
 /*Bookmark Bar*/
 
 #r_snack {
@@ -186,6 +179,7 @@ body {
   user-select: none;
   display: flex;
   align-items: center;
+  color: #fff;
 }
 
 #menu_float:hover {
@@ -201,7 +195,7 @@ body {
   border-radius: 50%;
   width: 50px;
   height: 50px;
-  line-height: 50px;
+  line-height: 52px;
   font-size: 24px;
   text-align: center;
   transition: opacity 0.3s ease-in-out;
@@ -224,38 +218,55 @@ body {
   background: #e91e63;
 }
 
-#switch_workspace_btn {
+#btn_switch_workspace {
   background: #2196f3;
 }
 
-#switch_workspace_btn:hover {
+#btn_switch_workspace:hover {
   background: #0b6cb9;
 }
 
-#switch_workspace_btn:active {
+#btn_switch_workspace:active {
   background: #2196f3;
 }
 
-#menu_float:hover #switch_workspace_btn {
+#menu_float:hover #btn_switch_workspace {
   opacity: 1;
-  transform: translateX(-100px);
+  transform: translateX(-70px);
 }
 
-#btn_settings {
+#btn_sort_note {
   background: #ff9800;
 }
 
-#btn_settings:hover {
+#btn_sort_note:hover {
   background: #ce8212;
 }
 
-#btn_settings:active {
+#btn_sort_note:active {
   background: #ff9800;
+}
+
+#menu_float:hover #btn_sort_note {
+  opacity: 1;
+  transform: translateX(-140px);
+}
+
+#btn_settings {
+  background: #009688;
+}
+
+#btn_settings:hover {
+  background: #02695f;
+}
+
+#btn_settings:active {
+  background: #009688;
 }
 
 #menu_float:hover #btn_settings {
   opacity: 1;
-  transform: translateX(-200px);
+  transform: translateX(-210px);
 }
 
 /* Noter */

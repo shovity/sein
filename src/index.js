@@ -43,9 +43,9 @@ if (storage.workspace) {
     storage.workspace++
   }
 
-  window.switch_workspace_btn.innerHTML = storage.workspace
+  window.btn_switch_workspace.innerHTML = storage.workspace
 } else {
-  window.switch_workspace_btn.innerHTML = '0'
+  window.btn_switch_workspace.innerHTML = '0'
 }
 
 logger.log_level = storage.config.log_level

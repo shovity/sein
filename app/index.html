@@ -1,75 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <title>New Tab</title>
-        <link rel="stylesheet" href="css/index.css" />
-    </head>
-    <body>
-        <!-- Wallpaper -->
-        <div id="wall"></div>
 
-        <video id="wall_video" autoplay muted loop></video>
+<head>
+    <meta charset="UTF-8" />
+    <title>New Tab</title>
+    <link rel="stylesheet" href="css/index.css" />
+</head>
 
-        <!-- Wave -->
-        <div id="wave_click_box"></div>
+<body>
+    <!-- Wallpaper -->
+    <div id="wall"></div>
 
-        <!-- Bookmark wave  -->
-        <div id="wave_bookmark" class="active">
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
+    <video id="wall_video" autoplay muted loop></video>
+
+    <!-- Wave -->
+    <div id="wave_click_box"></div>
+
+    <!-- Bookmark wave  -->
+    <div id="wave_bookmark" class="active">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+
+    <!-- Bookmark bar -->
+    <div id="r_snack">
+        <div id="bookmark_bar"></div>
+    </div>
+
+    <!-- Menu_float -->
+    <div id="menu_float">
+        <div></div>
+        <div id="btn_settings" click-emit="setting_open">⚙️</div>
+        <div id="btn_switch_workspace" click-emit="noter_switch_workspace"></div>
+        <div id="btn_sort_note" click-emit="noter_sort">🎲</div>
+        <div id="btn_add_note" click-emit="noter_add" class="main">+</div>
+    </div>
+
+    <!-- Note_box -->
+    <div id="note_box"></div>
+
+    <!-- Context menu -->
+    <div id="context_menu"></div>
+
+    <!-- Setting -->
+    <div id="setting_box" class="hidden">
+        <div class="setting-header">
+            <div class="setting-close" click-emit="setting_close">&times;</div>
         </div>
 
-        <!-- Bookmark bar -->
-        <div id="r_snack">
-            <div id="bookmark_bar"></div>
-        </div>
-
-        <!-- Menu_float -->
-        <div id="menu_float">
-            <div></div>
-            <div id="btn_settings" click-emit="setting_open"><span class="icon icon-settings"></span></div>
-            <div id="switch_workspace_btn" click-emit="noter_switch_workspace"></div>
-            <div id="btn_add_note" click-emit="noter_add" class="main">+</div>
-        </div>
-
-        <!-- Note_box -->
-        <div id="note_box"></div>
-
-        <!-- Context menu -->
-        <div id="context_menu"></div>
-
-        <!-- Setting -->
-        <div id="setting_box" class="hidden">
-            <div class="setting-header">
-                <div class="setting-close" click-emit="setting_close">&times;</div>
-            </div>
-
-            <!-- <div class="setting-heading">Login</div>
+        <!-- <div class="setting-heading">Login</div>
             <p>Building...</p> -->
 
-            <div class="setting-heading">Backup - Restore</div>
-            <p>Keep your personal data safe</p>
-            <button class="settings-btn" click-emit="setting_backup">Backup data</button>
-            <button class="settings-btn" click-emit="setting_restore">Restore data</button>
+        <div class="setting-heading">Backup - Restore</div>
+        <p>Keep your personal data safe</p>
+        <button class="settings-btn" click-emit="setting_backup">Backup data</button>
+        <button class="settings-btn" click-emit="setting_restore">Restore data</button>
 
-            <div class="setting-heading">Wallpaper</div>
-            <div id="settings_wallpapers"></div>
+        <div class="setting-heading">Wallpaper</div>
+        <div id="settings_wallpapers"></div>
 
-            <div class="setting-heading">Config</div>
-            <p>Free config (json)</p>
-            <textarea id="setting_config_input"></textarea>
-            <button class="settings-btn" click-emit="setting_config_save">Save config</button>
-        </div>
+        <div class="setting-heading">Config</div>
+        <p>Free config (json)</p>
+        <textarea id="setting_config_input"></textarea>
+        <button class="settings-btn" click-emit="setting_config_save">Save config</button>
+    </div>
 
-        <!-- Modal -->
-        <div id="modal">
-            <div id="modal_content"></div>
-        </div>
+    <!-- Modal -->
+    <div id="modal">
+        <div id="modal_content"></div>
+    </div>
 
-        <script src="js/index.bundle.js"></script>
-    </body>
+    <script src="js/index.bundle.js"></script>
+</body>
+
 </html>
