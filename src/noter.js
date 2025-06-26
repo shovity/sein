@@ -345,6 +345,7 @@ noter.sort = () => {
   const screenHeight = holder.w_h - 20
   const spacing = 10
   const leftMargin = 10
+  const topMargin = 10 // Add 10px top margin
 
   // MaxRects Algorithm implementation
   class MaxRects {
@@ -476,8 +477,8 @@ noter.sort = () => {
   // Sort notes by area (largest first) for better packing
   const sortedNotes = [...workspaceNotes].sort((a, b) => b.w * b.h - a.w * a.h)
 
-  // Initialize MaxRects with screen dimensions
-  const maxRects = new MaxRects(screenWidth - leftMargin, screenHeight)
+  // Initialize MaxRects with screen dimensions (subtract top margin)
+  const maxRects = new MaxRects(screenWidth - leftMargin, screenHeight - topMargin)
 
   // Place each note using MaxRects algorithm
   for (const note of sortedNotes) {
@@ -485,7 +486,7 @@ noter.sort = () => {
 
     if (placedRect) {
       note.x = placedRect.x + leftMargin
-      note.y = placedRect.y
+      note.y = placedRect.y + topMargin
     } else {
       // If can't fit, place at the end
       note.x = leftMargin
