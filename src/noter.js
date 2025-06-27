@@ -364,6 +364,31 @@ noter.sort = (screenWidth, screenHeight) => {
   let columnWidth = 0
   let maxY = topMargin
 
+  // Helper function to check if two notes overlap
+  const doNotesOverlap = (note1, note2) => {
+    return (
+      note1.x < note2.x + note2.w + spacing &&
+      note1.x + note1.w + spacing > note2.x &&
+      note1.y < note2.y + note2.h + spacing &&
+      note1.y + note1.h + spacing > note2.y
+    )
+  }
+
+  // Helper function to shift overlapping notes to the right
+  const shiftOverlappingNotes = (newNote, placedNotes) => {
+    let maxShift = 0
+
+    for (const placedNote of placedNotes) {
+      if (doNotesOverlap(newNote, placedNote)) {
+        // Calculate how much we need to shift the new note to the right
+        const requiredShift = placedNote.x + placedNote.w + spacing - newNote.x
+        maxShift = Math.max(maxShift, requiredShift)
+      }
+    }
+
+    return maxShift
+  }
+
   while (unplacedNotes.length > 0) {
     let notePlaced = false
 
@@ -376,6 +401,19 @@ noter.sort = (screenWidth, screenHeight) => {
         // Place note in current column
         note.x = currentX
         note.y = currentY
+
+        // Check for overlaps and shift if necessary
+        const shiftAmount = shiftOverlappingNotes(note, placedNotes)
+        if (shiftAmount > 0) {
+          note.x += shiftAmount
+
+          // Check if shifted position still fits within screen bounds
+          if (note.x + note.w > screenWidth) {
+            // If it doesn't fit, try to find a better position
+            continue
+          }
+        }
+
         currentY += note.h + spacing
         columnWidth = Math.max(columnWidth, note.w)
 
@@ -400,15 +438,14 @@ noter.sort = (screenWidth, screenHeight) => {
         // Try to find a position that fits
         for (let testY = topMargin; testY <= screenHeight - note.h; testY += spacing) {
           for (let testX = leftMargin; testX <= screenWidth - note.w; testX += spacing) {
-            // Check if this position is available (no overlap with placed notes)
+            // Set temporary position for overlap checking
+            note.x = testX
+            note.y = testY
+
+            // Check if this position overlaps with any placed notes
             let canPlace = true
             for (const placedNote of placedNotes) {
-              if (
-                testX < placedNote.x + placedNote.w + spacing &&
-                testX + note.w + spacing > placedNote.x &&
-                testY < placedNote.y + placedNote.h + spacing &&
-                testY + note.h + spacing > placedNote.y
-              ) {
+              if (doNotesOverlap(note, placedNote)) {
                 canPlace = false
                 break
               }
@@ -424,15 +461,43 @@ noter.sort = (screenWidth, screenHeight) => {
           if (foundPosition) break
         }
 
-        // Place the note at the best position found
-        note.x = bestX
-        note.y = bestY
-        currentX = bestX
-        currentY = bestY + note.h + spacing
-        columnWidth = note.w
+        // If no direct position found, try shifting approach
+        if (!foundPosition) {
+          // Try placing at leftmost position and shift if needed
+          note.x = leftMargin
+          note.y = topMargin
 
-        unplacedNotes.splice(0, 1)
-        placedNotes.push(note)
+          const shiftAmount = shiftOverlappingNotes(note, placedNotes)
+          if (shiftAmount > 0 && note.x + shiftAmount + note.w <= screenWidth) {
+            note.x += shiftAmount
+            foundPosition = true
+          }
+        }
+
+        // Place the note at the best position found
+        if (foundPosition) {
+          currentX = note.x
+          currentY = note.y + note.h + spacing
+          columnWidth = note.w
+
+          unplacedNotes.splice(0, 1)
+          placedNotes.push(note)
+        } else {
+          // If still can't place, place it at a random position on screen
+          const randomX = Math.floor(Math.random() * (screenWidth - note.w - leftMargin)) + leftMargin
+          const randomY = Math.floor(Math.random() * (screenHeight - note.h - topMargin)) + topMargin
+
+          note.x = randomX
+          note.y = randomY
+
+          // Update current position for next iteration
+          currentX = leftMargin
+          currentY = maxY + spacing
+          columnWidth = Math.max(columnWidth, note.w)
+
+          unplacedNotes.splice(0, 1)
+          placedNotes.push(note)
+        }
       }
     }
 
@@ -456,7 +521,7 @@ noter.sort = (screenWidth, screenHeight) => {
   noter.render()
   noter.save()
 
-  logger.debug('noter: Sorted notes using column-based packing algorithm')
+  logger.debug('noter: Sorted notes using column-based packing algorithm with overlap shifting')
 }
 
 noter.boot = () => {
@@ -607,7 +672,7 @@ noter.boot = () => {
   if (window.btn_sort_note) {
     let resizing = false
 
-    const caller = util.throttle()
+    const caller = util.throttle(100)
 
     window.btn_sort_note.addEventListener('mousedown', (event) => {
       resizing = true
