@@ -331,7 +331,7 @@ noter.clearTrash = () => {
   noter.save()
 }
 
-noter.sort = () => {
+noter.sort = (screenWidth, screenHeight) => {
   if (!noter.notes.length) return
 
   // Get current workspace notes
@@ -341,8 +341,15 @@ noter.sort = () => {
   if (!workspaceNotes.length) return
 
   // Available screen dimensions (subtract margins)
-  const screenWidth = holder.w_w - 20
-  const screenHeight = holder.w_h - 20
+
+  if (!screenWidth) {
+    screenWidth = holder.w_w - 20
+  }
+
+  if (!screenHeight) {
+    screenHeight = holder.w_h - 20
+  }
+
   const spacing = 10
   const leftMargin = 10
   const topMargin = 10 // Add 10px top margin
@@ -655,10 +662,34 @@ noter.boot = () => {
     noter.render()
   })
 
-  // Listen sort notes
-  event.on('noter_sort', () => {
-    noter.sort()
-  })
+  // Handle drag to sort
+  if (window.btn_sort_note) {
+    let resizing = false
+
+    const caller = util.throttle()
+
+    window.btn_sort_note.addEventListener('mousedown', (event) => {
+      resizing = true
+
+      caller.execute(() => {
+        noter.sort()
+      })
+    })
+
+    window.addEventListener('mousemove', (event) => {
+      if (!event.buttons || !resizing) {
+        return
+      }
+
+      caller.execute(() => {
+        noter.sort(event.clientX, event.clientY)
+      })
+    })
+
+    window.addEventListener('mouseup', () => {
+      resizing = false
+    })
+  }
 
   // Listen sync notes cross tab
   chrome.storage.onChanged.addListener((change, namespace) => {
