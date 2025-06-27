@@ -278,6 +278,7 @@ body {
   left: 0;
   background: rgb(255, 255, 141);
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.26), 0 4px 18px 0 rgba(0, 0, 0, 0.18);
+  opacity: 0.9;
 }
 
 .note:hover,
@@ -390,7 +391,7 @@ body {
 }
 
 .note[note-status='danger'] {
-  background: rgba(220, 53, 69, 0.7);
+  background: rgba(220, 53, 69, 0.8);
 }
 
 .note[note-status='danger'] > .note-editor {
@@ -398,7 +399,7 @@ body {
 }
 
 .note[note-status='primary'] {
-  background: rgba(0, 123, 255, 0.7);
+  background: rgba(0, 123, 255, 0.8);
 }
 
 .note[note-status='primary'] > .note-editor {
@@ -406,7 +407,7 @@ body {
 }
 
 .note[note-status='success'] {
-  background: rgba(40, 167, 69, 0.7);
+  background: rgba(40, 167, 69, 0.8);
 }
 
 .note[note-status='success'] > .note-editor {

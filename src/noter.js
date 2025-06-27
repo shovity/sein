@@ -340,164 +340,105 @@ noter.sort = (screenWidth, screenHeight) => {
 
   if (!workspaceNotes.length) return
 
-  // Available screen dimensions (subtract margins)
-
+  // Available screen dimensions
   if (!screenWidth) {
-    screenWidth = holder.w_w - 20
+    screenWidth = holder.w_w - 50
   }
 
   if (!screenHeight) {
-    screenHeight = holder.w_h - 20
+    screenHeight = holder.w_h
   }
 
   const spacing = 10
   const leftMargin = 10
-  const topMargin = 10 // Add 10px top margin
+  const topMargin = 10
 
-  // MaxRects Algorithm implementation
-  class MaxRects {
-    constructor(width, height) {
-      this.width = width
-      this.height = height
-      this.usedRects = []
-      this.freeRects = [{ x: 0, y: 0, width, height }]
+  // Sort notes by height (tallest first) for better column packing
+  const sortedNotes = [...workspaceNotes].sort((a, b) => b.h - a.h)
+
+  // Column-based packing algorithm (top to bottom, left to right)
+  const placedNotes = []
+  const unplacedNotes = [...sortedNotes]
+  let currentX = leftMargin
+  let currentY = topMargin
+  let columnWidth = 0
+  let maxY = topMargin
+
+  while (unplacedNotes.length > 0) {
+    let notePlaced = false
+
+    // Try to find the tallest note that fits in current column
+    for (let i = 0; i < unplacedNotes.length; i++) {
+      const note = unplacedNotes[i]
+
+      // Check if note fits in current column
+      if (currentY + note.h + spacing <= screenHeight) {
+        // Place note in current column
+        note.x = currentX
+        note.y = currentY
+        currentY += note.h + spacing
+        columnWidth = Math.max(columnWidth, note.w)
+
+        // Remove note from unplaced list
+        unplacedNotes.splice(i, 1)
+        placedNotes.push(note)
+        notePlaced = true
+        break
+      }
     }
 
-    // Find the best fit for a rectangle
-    findBestFit(rectWidth, rectHeight) {
-      let bestScore = -1
-      let bestRect = null
-      let bestIndex = -1
+    // If no note fits in current column, find best position for next note
+    if (!notePlaced) {
+      // Find the best available position for the tallest remaining note
+      let bestX = leftMargin
+      let bestY = topMargin
+      let foundPosition = false
 
-      for (let i = 0; i < this.freeRects.length; i++) {
-        const freeRect = this.freeRects[i]
+      if (unplacedNotes.length > 0) {
+        const note = unplacedNotes[0]
 
-        if (rectWidth <= freeRect.width && rectHeight <= freeRect.height) {
-          // Calculate score based on how well the rectangle fits
-          const score = Math.min(freeRect.width - rectWidth, freeRect.height - rectHeight)
+        // Try to find a position that fits
+        for (let testY = topMargin; testY <= screenHeight - note.h; testY += spacing) {
+          for (let testX = leftMargin; testX <= screenWidth - note.w; testX += spacing) {
+            // Check if this position is available (no overlap with placed notes)
+            let canPlace = true
+            for (const placedNote of placedNotes) {
+              if (
+                testX < placedNote.x + placedNote.w + spacing &&
+                testX + note.w + spacing > placedNote.x &&
+                testY < placedNote.y + placedNote.h + spacing &&
+                testY + note.h + spacing > placedNote.y
+              ) {
+                canPlace = false
+                break
+              }
+            }
 
-          if (score > bestScore) {
-            bestScore = score
-            bestRect = freeRect
-            bestIndex = i
+            if (canPlace) {
+              bestX = testX
+              bestY = testY
+              foundPosition = true
+              break
+            }
           }
+          if (foundPosition) break
         }
-      }
 
-      return { rect: bestRect, index: bestIndex }
-    }
+        // Place the note at the best position found
+        note.x = bestX
+        note.y = bestY
+        currentX = bestX
+        currentY = bestY + note.h + spacing
+        columnWidth = note.w
 
-    // Place a rectangle in the best available space
-    placeRect(rectWidth, rectHeight) {
-      const { rect, index } = this.findBestFit(rectWidth, rectHeight)
-
-      if (!rect) return null
-
-      // Remove the used free rectangle
-      this.freeRects.splice(index, 1)
-
-      // Place the rectangle
-      const placedRect = {
-        x: rect.x,
-        y: rect.y,
-        width: rectWidth,
-        height: rectHeight,
-      }
-      this.usedRects.push(placedRect)
-
-      // Split the remaining space into new free rectangles
-      this.splitFreeRect(rect, placedRect)
-
-      return placedRect
-    }
-
-    // Split free rectangle after placing a new rectangle
-    splitFreeRect(freeRect, placedRect) {
-      // Calculate remaining space
-      const remainingWidth = freeRect.width - placedRect.width
-      const remainingHeight = freeRect.height - placedRect.height
-
-      // Add new free rectangles
-      if (remainingWidth > 0) {
-        this.freeRects.push({
-          x: freeRect.x + placedRect.width,
-          y: freeRect.y,
-          width: remainingWidth,
-          height: freeRect.height,
-        })
-      }
-
-      if (remainingHeight > 0) {
-        this.freeRects.push({
-          x: freeRect.x,
-          y: freeRect.y + placedRect.height,
-          width: placedRect.width,
-          height: remainingHeight,
-        })
-      }
-
-      // Merge overlapping free rectangles
-      this.mergeFreeRects()
-    }
-
-    // Merge overlapping free rectangles
-    mergeFreeRects() {
-      for (let i = 0; i < this.freeRects.length; i++) {
-        for (let j = i + 1; j < this.freeRects.length; j++) {
-          const rect1 = this.freeRects[i]
-          const rect2 = this.freeRects[j]
-
-          if (this.canMerge(rect1, rect2)) {
-            const mergedRect = this.mergeRects(rect1, rect2)
-            this.freeRects.splice(j, 1)
-            this.freeRects.splice(i, 1)
-            this.freeRects.push(mergedRect)
-            return this.mergeFreeRects() // Recursively merge
-          }
-        }
+        unplacedNotes.splice(0, 1)
+        placedNotes.push(note)
       }
     }
 
-    // Check if two rectangles can be merged
-    canMerge(rect1, rect2) {
-      return (
-        (rect1.x === rect2.x &&
-          rect1.width === rect2.width &&
-          (rect1.y + rect1.height === rect2.y || rect2.y + rect2.height === rect1.y)) ||
-        (rect1.y === rect2.y &&
-          rect1.height === rect2.height &&
-          (rect1.x + rect1.width === rect2.x || rect2.x + rect2.width === rect1.x))
-      )
-    }
-
-    // Merge two rectangles
-    mergeRects(rect1, rect2) {
-      return {
-        x: Math.min(rect1.x, rect2.x),
-        y: Math.min(rect1.y, rect2.y),
-        width: Math.max(rect1.x + rect1.width, rect2.x + rect2.width) - Math.min(rect1.x, rect2.x),
-        height: Math.max(rect1.y + rect1.height, rect2.y + rect2.height) - Math.min(rect1.y, rect2.y),
-      }
-    }
-  }
-
-  // Sort notes by area (largest first) for better packing
-  const sortedNotes = [...workspaceNotes].sort((a, b) => b.w * b.h - a.w * a.h)
-
-  // Initialize MaxRects with screen dimensions (subtract top margin)
-  const maxRects = new MaxRects(screenWidth - leftMargin, screenHeight - topMargin)
-
-  // Place each note using MaxRects algorithm
-  for (const note of sortedNotes) {
-    const placedRect = maxRects.placeRect(note.w + spacing, note.h + spacing)
-
-    if (placedRect) {
-      note.x = placedRect.x + leftMargin
-      note.y = placedRect.y + topMargin
-    } else {
-      // If can't fit, place at the end
-      note.x = leftMargin
-      note.y = screenHeight - note.h
+    // Update maxY
+    for (const note of placedNotes) {
+      maxY = Math.max(maxY, note.y + note.h)
     }
   }
 
@@ -515,7 +456,7 @@ noter.sort = (screenWidth, screenHeight) => {
   noter.render()
   noter.save()
 
-  logger.debug('noter: Sorted notes using MaxRects algorithm')
+  logger.debug('noter: Sorted notes using column-based packing algorithm')
 }
 
 noter.boot = () => {
