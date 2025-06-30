@@ -218,23 +218,6 @@ body {
   background: #e91e63;
 }
 
-#btn_switch_workspace {
-  background: #2196f3;
-}
-
-#btn_switch_workspace:hover {
-  background: #0b6cb9;
-}
-
-#btn_switch_workspace:active {
-  background: #2196f3;
-}
-
-#menu_float:hover #btn_switch_workspace {
-  opacity: 1;
-  transform: translateX(-70px);
-}
-
 #btn_sort_note {
   background: #ff9800;
 }
@@ -248,6 +231,23 @@ body {
 }
 
 #menu_float:hover #btn_sort_note {
+  opacity: 1;
+  transform: translateX(-70px);
+}
+
+#btn_switch_workspace {
+  background: #2196f3;
+}
+
+#btn_switch_workspace:hover {
+  background: #0b6cb9;
+}
+
+#btn_switch_workspace:active {
+  background: #2196f3;
+}
+
+#menu_float:hover #btn_switch_workspace {
   opacity: 1;
   transform: translateX(-140px);
 }

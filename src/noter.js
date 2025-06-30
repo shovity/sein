@@ -688,7 +688,7 @@ noter.boot = () => {
       }
 
       caller.execute(() => {
-        noter.sort(event.clientX, event.clientY)
+        noter.sort(event.clientX, event.clientY + 100)
       })
     })
 
