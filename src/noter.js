@@ -392,8 +392,6 @@ noter.sort = (screenWidth, screenHeight) => {
   const unplacedNotes = [...sortedNotes]
   let currentX = config.spacing
   let currentY = config.spacing
-  let columnWidth = 0
-  let maxY = config.spacing
 
   while (unplacedNotes.length > 0) {
     let notePlaced = false
@@ -421,7 +419,6 @@ noter.sort = (screenWidth, screenHeight) => {
         }
 
         currentY += note.h + config.spacing
-        columnWidth = Math.max(columnWidth, note.w)
 
         // Remove note from unplaced list
         unplacedNotes.splice(i, 1)
@@ -434,8 +431,6 @@ noter.sort = (screenWidth, screenHeight) => {
     // If no note fits in current column, find best position for next note
     if (!notePlaced) {
       // Find the best available position for the tallest remaining note
-      let bestX = config.spacing
-      let bestY = config.spacing
       let foundPosition = false
 
       if (unplacedNotes.length > 0) {
@@ -458,8 +453,6 @@ noter.sort = (screenWidth, screenHeight) => {
             }
 
             if (canPlace) {
-              bestX = testX
-              bestY = testY
               foundPosition = true
               break
             }
@@ -484,7 +477,6 @@ noter.sort = (screenWidth, screenHeight) => {
         if (foundPosition) {
           currentX = note.x
           currentY = note.y + note.h + config.spacing
-          columnWidth = note.w
 
           unplacedNotes.splice(0, 1)
           placedNotes.push(note)
@@ -499,17 +491,10 @@ noter.sort = (screenWidth, screenHeight) => {
           // Update current position for next iteration
           currentX = config.spacing
 
-          columnWidth = Math.max(columnWidth, note.w)
-
           unplacedNotes.splice(0, 1)
           placedNotes.push(note)
         }
       }
-    }
-
-    // Update maxY
-    for (const note of placedNotes) {
-      maxY = Math.max(maxY, note.y + note.h)
     }
   }
 
