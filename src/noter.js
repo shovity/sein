@@ -18,6 +18,37 @@ const noter = {
   notes: [],
 }
 
+const config = {
+  spacing: 10,
+}
+
+const helper = {
+  // Check if two notes overlap
+  doNotesOverlap: (note1, note2) => {
+    return (
+      note1.x < note2.x + note2.w + config.spacing &&
+      note1.x + note1.w + config.spacing > note2.x &&
+      note1.y < note2.y + note2.h + config.spacing &&
+      note1.y + note1.h + config.spacing > note2.y
+    )
+  },
+
+  // Shift overlapping notes to the right
+  shiftOverlappingNotes: (newNote, placedNotes) => {
+    let maxShift = 0
+
+    for (const placedNote of placedNotes) {
+      if (helper.doNotesOverlap(newNote, placedNote)) {
+        // Calculate how much we need to shift the new note to the right
+        const requiredShift = placedNote.x + placedNote.w + config.spacing - newNote.x
+        maxShift = Math.max(maxShift, requiredShift)
+      }
+    }
+
+    return maxShift
+  },
+}
+
 noter.fetch = async () => {
   const local = await chrome.storage.local.get(['notes', 'version'])
 
@@ -332,13 +363,17 @@ noter.clearTrash = () => {
 }
 
 noter.sort = (screenWidth, screenHeight) => {
-  if (!noter.notes.length) return
+  if (!noter.notes.length) {
+    return
+  }
 
   // Get current workspace notes
   const workspace = +storage.workspace || 0
   const workspaceNotes = noter.notes.filter((note) => note.workspace === workspace)
 
-  if (!workspaceNotes.length) return
+  if (!workspaceNotes.length) {
+    return
+  }
 
   // Available screen dimensions
   if (!screenWidth) {
@@ -349,45 +384,16 @@ noter.sort = (screenWidth, screenHeight) => {
     screenHeight = holder.w_h
   }
 
-  const spacing = 10
-  const leftMargin = 10
-  const topMargin = 10
-
   // Sort notes by height (tallest first) for better column packing
   const sortedNotes = [...workspaceNotes].sort((a, b) => b.h - a.h)
 
   // Column-based packing algorithm (top to bottom, left to right)
   const placedNotes = []
   const unplacedNotes = [...sortedNotes]
-  let currentX = leftMargin
-  let currentY = topMargin
+  let currentX = config.spacing
+  let currentY = config.spacing
   let columnWidth = 0
-  let maxY = topMargin
-
-  // Helper function to check if two notes overlap
-  const doNotesOverlap = (note1, note2) => {
-    return (
-      note1.x < note2.x + note2.w + spacing &&
-      note1.x + note1.w + spacing > note2.x &&
-      note1.y < note2.y + note2.h + spacing &&
-      note1.y + note1.h + spacing > note2.y
-    )
-  }
-
-  // Helper function to shift overlapping notes to the right
-  const shiftOverlappingNotes = (newNote, placedNotes) => {
-    let maxShift = 0
-
-    for (const placedNote of placedNotes) {
-      if (doNotesOverlap(newNote, placedNote)) {
-        // Calculate how much we need to shift the new note to the right
-        const requiredShift = placedNote.x + placedNote.w + spacing - newNote.x
-        maxShift = Math.max(maxShift, requiredShift)
-      }
-    }
-
-    return maxShift
-  }
+  let maxY = config.spacing
 
   while (unplacedNotes.length > 0) {
     let notePlaced = false
@@ -397,13 +403,13 @@ noter.sort = (screenWidth, screenHeight) => {
       const note = unplacedNotes[i]
 
       // Check if note fits in current column
-      if (currentY + note.h + spacing <= screenHeight) {
+      if (currentY + note.h + config.spacing <= screenHeight) {
         // Place note in current column
         note.x = currentX
         note.y = currentY
 
         // Check for overlaps and shift if necessary
-        const shiftAmount = shiftOverlappingNotes(note, placedNotes)
+        const shiftAmount = helper.shiftOverlappingNotes(note, placedNotes)
         if (shiftAmount > 0) {
           note.x += shiftAmount
 
@@ -414,7 +420,7 @@ noter.sort = (screenWidth, screenHeight) => {
           }
         }
 
-        currentY += note.h + spacing
+        currentY += note.h + config.spacing
         columnWidth = Math.max(columnWidth, note.w)
 
         // Remove note from unplaced list
@@ -428,16 +434,16 @@ noter.sort = (screenWidth, screenHeight) => {
     // If no note fits in current column, find best position for next note
     if (!notePlaced) {
       // Find the best available position for the tallest remaining note
-      let bestX = leftMargin
-      let bestY = topMargin
+      let bestX = config.spacing
+      let bestY = config.spacing
       let foundPosition = false
 
       if (unplacedNotes.length > 0) {
         const note = unplacedNotes[0]
 
         // Try to find a position that fits
-        for (let testY = topMargin; testY <= screenHeight - note.h; testY += spacing) {
-          for (let testX = leftMargin; testX <= screenWidth - note.w; testX += spacing) {
+        for (let testY = config.spacing; testY <= screenHeight - note.h; testY += config.spacing) {
+          for (let testX = config.spacing; testX <= screenWidth - note.w; testX += config.spacing) {
             // Set temporary position for overlap checking
             note.x = testX
             note.y = testY
@@ -445,7 +451,7 @@ noter.sort = (screenWidth, screenHeight) => {
             // Check if this position overlaps with any placed notes
             let canPlace = true
             for (const placedNote of placedNotes) {
-              if (doNotesOverlap(note, placedNote)) {
+              if (helper.doNotesOverlap(note, placedNote)) {
                 canPlace = false
                 break
               }
@@ -464,10 +470,10 @@ noter.sort = (screenWidth, screenHeight) => {
         // If no direct position found, try shifting approach
         if (!foundPosition) {
           // Try placing at leftmost position and shift if needed
-          note.x = leftMargin
-          note.y = topMargin
+          note.x = config.spacing
+          note.y = config.spacing
 
-          const shiftAmount = shiftOverlappingNotes(note, placedNotes)
+          const shiftAmount = helper.shiftOverlappingNotes(note, placedNotes)
           if (shiftAmount > 0 && note.x + shiftAmount + note.w <= screenWidth) {
             note.x += shiftAmount
             foundPosition = true
@@ -477,22 +483,22 @@ noter.sort = (screenWidth, screenHeight) => {
         // Place the note at the best position found
         if (foundPosition) {
           currentX = note.x
-          currentY = note.y + note.h + spacing
+          currentY = note.y + note.h + config.spacing
           columnWidth = note.w
 
           unplacedNotes.splice(0, 1)
           placedNotes.push(note)
         } else {
           // If still can't place, place it at a random position on screen
-          const randomX = Math.floor(Math.random() * (screenWidth - note.w - leftMargin)) + leftMargin
-          const randomY = Math.floor(Math.random() * (screenHeight - note.h - topMargin)) + topMargin
+          const randomX = Math.floor(Math.random() * (screenWidth - note.w - config.spacing)) + config.spacing
+          const randomY = Math.floor(Math.random() * (screenHeight - note.h - config.spacing)) + config.spacing
 
           note.x = randomX
           note.y = randomY
 
           // Update current position for next iteration
-          currentX = leftMargin
-          currentY = maxY + spacing
+          currentX = config.spacing
+
           columnWidth = Math.max(columnWidth, note.w)
 
           unplacedNotes.splice(0, 1)
@@ -504,16 +510,6 @@ noter.sort = (screenWidth, screenHeight) => {
     // Update maxY
     for (const note of placedNotes) {
       maxY = Math.max(maxY, note.y + note.h)
-    }
-  }
-
-  // Update all notes with new positions
-  for (const note of workspaceNotes) {
-    const index = noter.notes.findIndex((n) => n.id === note.id)
-    if (index !== -1) {
-      noter.notes[index].x = note.x
-      noter.notes[index].y = note.y
-      noter.notes[index].updatedAt = Date.now()
     }
   }
 
@@ -671,11 +667,15 @@ noter.boot = () => {
   // Handle drag to sort
   if (window.btn_sort_note) {
     let resizing = false
+    let x = 0
+    let y = 0
 
     const caller = util.throttle(100)
 
     window.btn_sort_note.addEventListener('mousedown', (event) => {
       resizing = true
+      x = event.clientX
+      y = event.clientY
 
       caller.execute(() => {
         noter.sort()
@@ -687,8 +687,15 @@ noter.boot = () => {
         return
       }
 
+      if (Math.abs(event.clientX - x) < 5 && Math.abs(event.clientY - y) < 5) {
+        return
+      }
+
+      x = event.clientX
+      y = event.clientY
+
       caller.execute(() => {
-        noter.sort(event.clientX, event.clientY + 100)
+        noter.sort(x, y + 100)
       })
     })
 
