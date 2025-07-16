@@ -405,6 +405,7 @@ noter.sort = (screenWidth, screenHeight) => {
         // Place note in current column
         note.x = currentX
         note.y = currentY
+        note.updatedAt = Date.now()
 
         // Check for overlaps and shift if necessary
         const shiftAmount = helper.shiftOverlappingNotes(note, placedNotes)
@@ -442,6 +443,7 @@ noter.sort = (screenWidth, screenHeight) => {
             // Set temporary position for overlap checking
             note.x = testX
             note.y = testY
+            note.updatedAt = Date.now()
 
             // Check if this position overlaps with any placed notes
             let canPlace = true
@@ -465,6 +467,7 @@ noter.sort = (screenWidth, screenHeight) => {
           // Try placing at leftmost position and shift if needed
           note.x = config.spacing
           note.y = config.spacing
+          note.updatedAt = Date.now()
 
           const shiftAmount = helper.shiftOverlappingNotes(note, placedNotes)
           if (shiftAmount > 0 && note.x + shiftAmount + note.w <= screenWidth) {
@@ -487,6 +490,7 @@ noter.sort = (screenWidth, screenHeight) => {
 
           note.x = randomX
           note.y = randomY
+          note.updatedAt = Date.now()
 
           // Update current position for next iteration
           currentX = config.spacing
